@@ -52,6 +52,7 @@ import java.util.UUID;
 @Slf4j
 public class CaseServiceImpl implements CaseService {
 
+  public static final String CORRELATION_DATA_ID = "%s,%s";
   public static final String IAC_OVERUSE_MSG = "More than one case found to be using IAC %s";
   public static final String MISSING_NEW_CASE_MSG = "New Case definition missing for case %s";
   public static final String WRONG_OLD_SAMPLE_UNIT_TYPE_MSG =
@@ -534,16 +535,34 @@ public class CaseServiceImpl implements CaseService {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
   public void testTransactionalBehaviour() {
-    log.debug("Entering testTransactionalBehaviour...");
+    String testCaseId = "551308fb-2d5a-4477-92c3-649d915834c3";
+    log.info("Entering testTransactionalBehaviour with testCaseId {}", testCaseId);
 
-    Case caze = caseRepo.findById(UUID.fromString("551308fb-2d5a-4477-92c3-649d915834c3"));
+    Case caze = caseRepo.findById(UUID.fromString(testCaseId));
+    CaseState initialState = caze.getState();
+
     caze.setState(CaseState.SAMPLED_INIT);
     caseRepo.saveAndFlush(caze);
     log.debug("just saved to db");
 
-    CaseNotification caseNotification = new CaseNotification("3b136c4b-7a14-4904-9e01-13364dd7b972",
-        "3b136c4b-7a14-4904-9e01-13364dd7b972", null);
-    notificationPublisher.sendNotification(caseNotification);
+    CaseNotification caseNotification = new CaseNotification(testCaseId, "3b136c4b-7a14-4904-9e01-13364dd7b972", null);
+    notificationPublisher.sendNotification(caseNotification,
+        String.format(CORRELATION_DATA_ID, testCaseId, initialState));
     log.info("just published to queue - last line in service");
+  }
+
+  public void rollbackTestTransactionalBehaviour(String correlationDataId) {
+    // TODO retest as update seems to fail due to initial TX
+    String[] data = correlationDataId.split(",");
+    String caseId = data[0];
+    String caseStateToRevertTo = data[1];
+    Case caze = caseRepo.findById(UUID.fromString(caseId));
+    if (caze != null) {
+      caze.setState(CaseState.valueOf(caseStateToRevertTo));
+      caseRepo.saveAndFlush(caze);
+      log.info("case now rolledback in db");
+    } else {
+      log.error("Unexpected sitution. No case retrieved for id {}", caseId);
+    }
   }
 }

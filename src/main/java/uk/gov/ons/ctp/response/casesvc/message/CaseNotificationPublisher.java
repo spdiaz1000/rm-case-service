@@ -14,4 +14,11 @@ public interface CaseNotificationPublisher {
    * @param caseNotification the CaseNotification to put on the outbound channel
    */
   void sendNotification(CaseNotification caseNotification);
+
+  /**
+   * To put one CaseNotification on the outbound channel caseNotificationOutbound
+   * @param caseNotification the CaseNotification to put on the outbound channel
+   * @param correlationDataId the correlation data required to rollback in case of publish issue
+   */
+  void sendNotification(CaseNotification caseNotification, String correlationDataId);
 }

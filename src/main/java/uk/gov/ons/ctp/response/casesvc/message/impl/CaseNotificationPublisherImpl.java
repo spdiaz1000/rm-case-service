@@ -27,7 +27,18 @@ public class CaseNotificationPublisherImpl implements CaseNotificationPublisher 
   public void sendNotification(CaseNotification caseNotification) {
     log.debug("Entering sendNotification with CaseNotification {}", caseNotification);
     CorrelationData correlationData = new CorrelationData();
-    correlationData.setId(caseNotification.getCaseId());
+    String caseId = caseNotification.getCaseId();
+    correlationData.setId(caseId);
+    rabbitTemplate.convertAndSend("Case.LifecycleEvents.binding", caseNotification, correlationData);
+    log.info("caseNotification published");
+  }
+
+  @Override
+  public void sendNotification(CaseNotification caseNotification, String correlationDataId) {
+    log.debug("Entering sendNotification with CaseNotification {} and correlationDataId {}", caseNotification,
+        correlationDataId);
+    CorrelationData correlationData = new CorrelationData();
+    correlationData.setId(correlationDataId);
     rabbitTemplate.convertAndSend("Case.LifecycleEvents.binding", caseNotification, correlationData);
     log.info("caseNotification published");
   }

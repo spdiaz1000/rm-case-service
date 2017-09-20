@@ -16,4 +16,7 @@
 
 - scenario exchange is deleted:
     - BespokeConfirmCallback.confirm is called with ack = FALSE
-    
+
+
+- note that calls to BespokeReturnCallback & BespokeConfirmCallback are asynchronous so not done within the TX on testTransactionalBehaviour.
+
