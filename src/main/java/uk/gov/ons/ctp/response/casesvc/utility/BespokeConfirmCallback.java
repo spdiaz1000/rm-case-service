@@ -17,7 +17,8 @@ public class BespokeConfirmCallback implements RabbitTemplate.ConfirmCallback {
     if (!ack) {
       String errorMsg = String.format(DELIVERY_FAILURE_MSG, cause);
       log.error(errorMsg);
-      throw new RuntimeException(errorMsg);
+
+      // TODO Rollback what has been done prior to publishing to queue
     }
   }
 }

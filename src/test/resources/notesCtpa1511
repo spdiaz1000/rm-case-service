@@ -1,0 +1,19 @@
+- Publish to queue:
+
+- scenario all ok:
+    - BespokeConfirmCallback.confirm called with ack = true
+
+
+- scenario RabbitMQ down:
+    - BespokeConfirmCallback & BespokeReturnCallback NOT called
+    - TX is working though.
+
+
+- scenario only queue is deleted:
+    - BespokeReturnCallback.returnedMessage is called with replyText = NO_ROUTE
+    - BespokeConfirmCallback.confirm is called with ack = TRUE
+
+
+- scenario exchange is deleted:
+    - BespokeConfirmCallback.confirm is called with ack = FALSE
+    

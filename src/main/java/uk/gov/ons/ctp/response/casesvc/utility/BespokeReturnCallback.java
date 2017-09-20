@@ -17,6 +17,7 @@ public class BespokeReturnCallback implements RabbitTemplate.ReturnCallback {
         exchange, routingKey);
     String errorMsg = String.format(DELIVERY_FAILURE_MSG, replyText);
     log.error(errorMsg);
-    throw new RuntimeException(errorMsg);
+
+    // TODO Rollback what has been done prior to publishing to queue
   }
 }
