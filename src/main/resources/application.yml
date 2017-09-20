@@ -12,6 +12,7 @@ logging:
   level:
     uk.gov.ons.ctp: INFO
     org.springframework: ERROR
+    org.springframework.amqp.rabbit.core: DEBUG
   profile: DEV
 
 liquibase:

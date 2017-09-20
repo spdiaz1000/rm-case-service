@@ -26,5 +26,6 @@ public class CaseNotificationPublisherImpl implements CaseNotificationPublisher 
   public void sendNotification(CaseNotification caseNotification) {
     log.debug("Entering sendNotification with CaseNotification {}", caseNotification);
     rabbitTemplate.convertAndSend(caseNotification);
+    log.info("caseNotification published");
   }
 }
