@@ -13,7 +13,7 @@ public class BespokeReturnCallback implements RabbitTemplate.ReturnCallback {
 
   @Override
   public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
-    log.debug("returning message with replyCode {} - replyText {} - exchange {} - routingKey {}", replyCode, replyText,
+    log.info("returning message with replyCode {} - replyText {} - exchange {} - routingKey {}", replyCode, replyText,
         exchange, routingKey);
     String errorMsg = String.format(DELIVERY_FAILURE_MSG, replyText);
     log.error(errorMsg);

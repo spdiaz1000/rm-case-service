@@ -532,8 +532,7 @@ public class CaseServiceImpl implements CaseService {
     return newCase;
   }
 
-  // TODO delete once test ran successfully
-  @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false, timeout = TRANSACTION_TIMEOUT)
+  @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
   public void testTransactionalBehaviour() {
     log.debug("Entering testTransactionalBehaviour...");
 
@@ -545,6 +544,6 @@ public class CaseServiceImpl implements CaseService {
     CaseNotification caseNotification = new CaseNotification("3b136c4b-7a14-4904-9e01-13364dd7b972",
         "3b136c4b-7a14-4904-9e01-13364dd7b972", null);
     notificationPublisher.sendNotification(caseNotification);
-    log.debug("just published to queue");
+    log.info("just published to queue - last line in service");
   }
 }

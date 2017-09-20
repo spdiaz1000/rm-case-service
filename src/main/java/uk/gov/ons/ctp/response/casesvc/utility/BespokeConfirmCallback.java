@@ -13,7 +13,7 @@ public class BespokeConfirmCallback implements RabbitTemplate.ConfirmCallback {
 
   @Override
   public void confirm(CorrelationData correlationData, boolean ack, String cause) {
-    log.debug("confirming message with ack {}", ack);
+    log.info("confirming message with ack {} for id {}", ack, correlationData.getId());
     if (!ack) {
       String errorMsg = String.format(DELIVERY_FAILURE_MSG, cause);
       log.error(errorMsg);

@@ -1,6 +1,7 @@
 package uk.gov.ons.ctp.response.casesvc.message.impl;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.support.CorrelationData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -25,7 +26,9 @@ public class CaseNotificationPublisherImpl implements CaseNotificationPublisher 
   @Override
   public void sendNotification(CaseNotification caseNotification) {
     log.debug("Entering sendNotification with CaseNotification {}", caseNotification);
-    rabbitTemplate.convertAndSend(caseNotification);
+    CorrelationData correlationData = new CorrelationData();
+    correlationData.setId(caseNotification.getCaseId());
+    rabbitTemplate.convertAndSend("Case.LifecycleEvents.binding", caseNotification, correlationData);
     log.info("caseNotification published");
   }
 }
