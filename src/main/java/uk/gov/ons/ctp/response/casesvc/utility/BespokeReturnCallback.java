@@ -5,14 +5,18 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
+import static uk.gov.ons.ctp.response.casesvc.utility.BespokeConfirmCallback.DELIVERY_FAILURE_MSG;
+
 @Slf4j
 @Component
 public class BespokeReturnCallback implements RabbitTemplate.ReturnCallback {
 
   @Override
-  public void returnedMessage(Message var1, int var2, String var3, String var4, String var5){
-    log.debug("Returned Message");
-    // TODO Do we really want to do the below?
-//    throw new RuntimeException("");
+  public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
+    log.debug("returning message with replyCode {} - replyText {} - exchange {} - routingKey {}", replyCode, replyText,
+        exchange, routingKey);
+    String errorMsg = String.format(DELIVERY_FAILURE_MSG, replyText);
+    log.error(errorMsg);
+    throw new RuntimeException(errorMsg);
   }
 }
