@@ -22,6 +22,7 @@ import uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification;
 @Slf4j
 public class CaseNotificationPublisherImpl implements CaseNotificationPublisher {
 
+  public static final String HEADER_USED_TO_ROLLBACK = "correlationDataId";
   private static final String LIFECYCLE_EVENTS_ROUTING_KEY = "Case.LifecycleEvents.binding";
 
   @Qualifier("caseNotificationRabbitTemplate")
@@ -47,7 +48,7 @@ public class CaseNotificationPublisherImpl implements CaseNotificationPublisher 
     MessagePostProcessor messagePostProcessor = new MessagePostProcessor() {
       public Message postProcessMessage(Message message) throws AmqpException {
         log.info("correlationDataId is {}", correlationDataId);
-        message.getMessageProperties().setCorrelationIdString(correlationDataId);
+        message.getMessageProperties().setHeader(HEADER_USED_TO_ROLLBACK, correlationDataId);
         return message;
       }
     };
@@ -56,7 +57,8 @@ public class CaseNotificationPublisherImpl implements CaseNotificationPublisher 
     CorrelationData correlationData = new CorrelationData();
     correlationData.setId(correlationDataId);
 
-    rabbitTemplate.convertAndSend(LIFECYCLE_EVENTS_ROUTING_KEY, caseNotification, messagePostProcessor, correlationData);
+    rabbitTemplate.convertAndSend(LIFECYCLE_EVENTS_ROUTING_KEY, caseNotification, messagePostProcessor,
+        correlationData);
     log.info("caseNotification published");
   }
 }
