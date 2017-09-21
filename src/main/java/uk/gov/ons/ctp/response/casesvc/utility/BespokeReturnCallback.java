@@ -30,6 +30,6 @@ public class BespokeReturnCallback implements RabbitTemplate.ReturnCallback {
     String correlationIdString = (String)messageProps.getHeaders().get(HEADER_USED_TO_ROLLBACK);
     log.info("correlationIdString is {}", correlationIdString);
 
-    caseService.rollbackTestTransactionalBehaviour(correlationIdString);
+    caseService.rollbackForNotificationPublisher(correlationIdString);
   }
 }

@@ -24,7 +24,7 @@ public class BespokeConfirmCallback implements RabbitTemplate.ConfirmCallback {
       String errorMsg = String.format(DELIVERY_FAILURE_MSG, cause);
       log.error(errorMsg);
 
-      caseService.rollbackTestTransactionalBehaviour(correlationDataId);
+      caseService.rollbackForNotificationPublisher(correlationDataId);
     }
   }
 }
