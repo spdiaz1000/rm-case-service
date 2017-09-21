@@ -551,8 +551,14 @@ public class CaseServiceImpl implements CaseService {
     log.info("just published to queue - last line in service");
   }
 
+  // TODO delete once test  for CTPA-1511 ran successfully
   public void rollbackTestTransactionalBehaviour(String correlationDataId) {
-    // TODO retest as update seems to fail due to initial TX
+    // Pause below is required to prevent exception 'Row was updated or deleted by another transaction'
+    try {
+      Thread.sleep(3000);
+    } catch (InterruptedException e) {
+    }
+
     String[] data = correlationDataId.split(",");
     String caseId = data[0];
     String caseStateToRevertTo = data[1];
@@ -562,7 +568,7 @@ public class CaseServiceImpl implements CaseService {
       caseRepo.saveAndFlush(caze);
       log.info("case now rolledback in db");
     } else {
-      log.error("Unexpected sitution. No case retrieved for id {}", caseId);
+      log.error("Unexpected situation. No case retrieved for id {}", caseId);
     }
   }
 }

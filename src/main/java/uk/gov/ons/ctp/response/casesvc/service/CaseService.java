@@ -132,5 +132,6 @@ public interface CaseService extends CTPService {
   // TODO delete once test ran successfully
   void testTransactionalBehaviour();
 
+  // TODO delete once test  for CTPA-1511 ran successfully
   void rollbackTestTransactionalBehaviour(String caseId);
 }
