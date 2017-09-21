@@ -1,5 +1,8 @@
 package uk.gov.ons.ctp.response.casesvc.message.impl;
 
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.support.CorrelationData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,8 @@ import uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification;
 @Slf4j
 public class CaseNotificationPublisherImpl implements CaseNotificationPublisher {
 
+  private static final String LIFECYCLE_EVENTS_ROUTING_KEY = "Case.LifecycleEvents.binding";
+
   @Qualifier("caseNotificationRabbitTemplate")
   @Autowired
   private RabbitTemplate rabbitTemplate;
@@ -29,17 +34,29 @@ public class CaseNotificationPublisherImpl implements CaseNotificationPublisher 
     CorrelationData correlationData = new CorrelationData();
     String caseId = caseNotification.getCaseId();
     correlationData.setId(caseId);
-    rabbitTemplate.convertAndSend("Case.LifecycleEvents.binding", caseNotification, correlationData);
+    rabbitTemplate.convertAndSend(LIFECYCLE_EVENTS_ROUTING_KEY, caseNotification, correlationData);
     log.info("caseNotification published");
   }
 
   @Override
   public void sendNotification(CaseNotification caseNotification, String correlationDataId) {
-    log.debug("Entering sendNotification with CaseNotification {} and correlationDataId {}", caseNotification,
+    log.info("Entering sendNotification with CaseNotification {} and correlationDataId {}", caseNotification,
         correlationDataId);
+
+    // Required for correlating publisher returns to sent messages.
+    MessagePostProcessor messagePostProcessor = new MessagePostProcessor() {
+      public Message postProcessMessage(Message message) throws AmqpException {
+        log.info("correlationDataId is {}", correlationDataId);
+        message.getMessageProperties().setCorrelationIdString(correlationDataId);
+        return message;
+      }
+    };
+
+    // Required for correlating publisher confirms to sent messages.
     CorrelationData correlationData = new CorrelationData();
     correlationData.setId(correlationDataId);
-    rabbitTemplate.convertAndSend("Case.LifecycleEvents.binding", caseNotification, correlationData);
+
+    rabbitTemplate.convertAndSend(LIFECYCLE_EVENTS_ROUTING_KEY, caseNotification, messagePostProcessor, correlationData);
     log.info("caseNotification published");
   }
 }

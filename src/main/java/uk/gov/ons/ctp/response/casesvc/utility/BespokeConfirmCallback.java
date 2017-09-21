@@ -19,12 +19,11 @@ public class BespokeConfirmCallback implements RabbitTemplate.ConfirmCallback {
   @Override
   public void confirm(CorrelationData correlationData, boolean ack, String cause) {
     String correlationDataId = correlationData.getId();
-    log.info("confirming message with ack {} for correlationDataId {}", ack, correlationDataId);
+    log.info("confirming message with ack {} - cause {} - correlationDataId {}", ack, cause, correlationDataId);
     if (!ack) {
       String errorMsg = String.format(DELIVERY_FAILURE_MSG, cause);
       log.error(errorMsg);
 
-      // TODO If the rollback fails maybe try to throw RuntimeException
       caseService.rollbackTestTransactionalBehaviour(correlationDataId);
     }
   }
