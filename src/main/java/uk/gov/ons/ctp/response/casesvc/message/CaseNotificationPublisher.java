@@ -9,6 +9,7 @@ import uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification;
  */
 public interface CaseNotificationPublisher {
 
+  // TODO Get rid of this version as we need correlationDataId when pb with publishing to queue
   /**
    * To put one CaseNotification on the outbound channel caseNotificationOutbound
    * @param caseNotification the CaseNotification to put on the outbound channel

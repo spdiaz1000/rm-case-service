@@ -54,6 +54,7 @@ public class CaseServiceImpl implements CaseService {
 
   public static final String CORRELATION_DATA_ID = "%s,%s,%s";
   public static final String IAC_OVERUSE_MSG = "More than one case found to be using IAC %s";
+  public static final String METHOD_CASE_DISTRIBUTOR_PROCESS_CASE = "processCase";
   public static final String MISSING_NEW_CASE_MSG = "New Case definition missing for case %s";
   public static final String WRONG_OLD_SAMPLE_UNIT_TYPE_MSG =
       "Old Case has sampleUnitType %s. It is expected to have sampleUnitType %s.";
@@ -418,6 +419,7 @@ public class CaseServiceImpl implements CaseService {
       if (!oldState.equals(newState)) {
         targetCase.setState(newState);
         caseRepo.saveAndFlush(targetCase);
+        // TODO Should be called with correlationDataId
         notificationPublisher.sendNotification(prepareCaseNotification(targetCase, transitionEvent));
       }
     }
@@ -548,10 +550,11 @@ public class CaseServiceImpl implements CaseService {
 
     CaseNotification caseNotification = new CaseNotification(testCaseId, "3b136c4b-7a14-4904-9e01-13364dd7b972", null);
     notificationPublisher.sendNotification(caseNotification,
-        String.format(CORRELATION_DATA_ID, "testTransactionalBehaviour", testCaseId, initialState));
+        String.format(CORRELATION_DATA_ID, METHOD_TEST_TRANSACTIONAL_BEHAVIOUR, testCaseId, initialState));
     log.info("just published to queue - last line in service");
   }
 
+  // TODO Is this the best service for this method?
   @Override
   public void rollbackForNotificationPublisher(String correlationDataId) {
     // Pause below is required to prevent exception 'Row was updated or deleted by another transaction'
@@ -565,21 +568,26 @@ public class CaseServiceImpl implements CaseService {
     String caseId = data[1];
     String caseStateToRevertTo = data[2];
 
-    switch(methodName) {
-      case METHOD_TEST_TRANSACTIONAL_BEHAVIOUR:
-        Case caze = caseRepo.findById(UUID.fromString(caseId));
-        if (caze != null) {
+    Case caze = null;
+    if (!StringUtils.isEmpty(caseId)) {
+      caze = caseRepo.findById(UUID.fromString(caseId));
+    }
+
+    if (caze != null) {
+      switch (methodName) {
+        case METHOD_TEST_TRANSACTIONAL_BEHAVIOUR:
           caze.setState(CaseState.valueOf(caseStateToRevertTo));
           caseRepo.saveAndFlush(caze);
           log.info("case now rolledback in db");
-        } else {
-          log.error("Unexpected situation. No case retrieved for id {}", caseId);
-        }
-        break;
-      // TODO CaseDistributor
+          break;
+        case METHOD_CASE_DISTRIBUTOR_PROCESS_CASE:
+          caze.setState(CaseState.valueOf(caseStateToRevertTo));
+          caze.setIac(null);
+          caseRepo.saveAndFlush(caze);
+          break;
+      }
+    } else {
+      log.error("Unexpected situation. No case retrieved for id {}", caseId);
     }
-
-
-
   }
 }

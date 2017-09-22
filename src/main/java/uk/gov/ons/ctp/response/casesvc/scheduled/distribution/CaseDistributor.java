@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.CORRELATION_DATA_ID;
+import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.METHOD_CASE_DISTRIBUTOR_PROCESS_CASE;
+
 /**
  * This is the 'service' class that distributes cases to the action service. It has a number of injected beans,
  * including a RestClient, Repositories and the InstructionPublisher.
@@ -192,7 +195,7 @@ public class CaseDistributor {
 
     CaseDTO.CaseEvent event = null;
     CaseState initialState = caze.getState();
-    switch (caze.getState()) {
+    switch (initialState) {
       case SAMPLED_INIT:
         event = CaseDTO.CaseEvent.ACTIVATED;
         break;
@@ -209,7 +212,8 @@ public class CaseDistributor {
 
     CaseNotification caseNotification = caseService.prepareCaseNotification(caze, event);
     log.debug("Publishing caseNotification...");
-    notificationPublisher.sendNotification(caseNotification);
+    notificationPublisher.sendNotification(caseNotification,
+        String.format(CORRELATION_DATA_ID, METHOD_CASE_DISTRIBUTOR_PROCESS_CASE, updatedCase.getId(), initialState));
   }
 
   /**
