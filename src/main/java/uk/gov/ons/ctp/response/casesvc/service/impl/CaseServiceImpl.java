@@ -558,6 +558,7 @@ public class CaseServiceImpl implements CaseService {
   @Override
   public void rollbackForNotificationPublisher(String correlationDataId) {
     // Pause below is required to prevent exception 'Row was updated or deleted by another transaction'
+    log.info("entering rollbackForNotificationPublisher with correlationDataId {}", correlationDataId);
     try {
       Thread.sleep(3000);
     } catch (InterruptedException e) {
@@ -565,8 +566,11 @@ public class CaseServiceImpl implements CaseService {
 
     String[] data = correlationDataId.split(",");
     String methodName = data[0];
+    log.info("methodName is {}", methodName);
     String caseId = data[1];
+    log.info("caseId is {}", caseId);
     String caseStateToRevertTo = data[2];
+    log.info("caseStateToRevertTo is {}", caseStateToRevertTo);
 
     Case caze = null;
     if (!StringUtils.isEmpty(caseId)) {
