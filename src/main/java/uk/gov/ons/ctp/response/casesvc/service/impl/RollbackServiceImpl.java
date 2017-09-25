@@ -12,7 +12,7 @@ import uk.gov.ons.ctp.response.casesvc.service.RollbackService;
 import java.util.UUID;
 
 import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.METHOD_CASE_DISTRIBUTOR_PROCESS_CASE;
-import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.METHOD_TEST_TRANSACTIONAL_BEHAVIOUR;
+import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.METHOD_CASE_SERVICE_TEST_TRANSACTIONAL_BEHAVIOUR;
 
 @Slf4j
 @Service
@@ -45,7 +45,7 @@ public class RollbackServiceImpl implements RollbackService {
 
     if (caze != null) {
       switch (methodName) {
-      case METHOD_TEST_TRANSACTIONAL_BEHAVIOUR:
+      case METHOD_CASE_SERVICE_TEST_TRANSACTIONAL_BEHAVIOUR:
         caze.setState(CaseDTO.CaseState.valueOf(caseStateToRevertTo));
         caseRepo.saveAndFlush(caze);
         log.info("case now rolledback in db");

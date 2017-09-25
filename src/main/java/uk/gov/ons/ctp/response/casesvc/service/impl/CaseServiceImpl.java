@@ -55,7 +55,7 @@ public class CaseServiceImpl implements CaseService {
   public static final String CORRELATION_DATA_ID = "%s,%s,%s";
   public static final String IAC_OVERUSE_MSG = "More than one case found to be using IAC %s";
   public static final String METHOD_CASE_DISTRIBUTOR_PROCESS_CASE = "processCase";
-  public static final String METHOD_TEST_TRANSACTIONAL_BEHAVIOUR = "testTransactionalBehaviour";
+  public static final String METHOD_CASE_SERVICE_TEST_TRANSACTIONAL_BEHAVIOUR = "testTransactionalBehaviour";
   public static final String MISSING_NEW_CASE_MSG = "New Case definition missing for case %s";
   public static final String WRONG_OLD_SAMPLE_UNIT_TYPE_MSG =
       "Old Case has sampleUnitType %s. It is expected to have sampleUnitType %s.";
@@ -549,7 +549,7 @@ public class CaseServiceImpl implements CaseService {
 
     CaseNotification caseNotification = new CaseNotification(testCaseId, "3b136c4b-7a14-4904-9e01-13364dd7b972", null);
     notificationPublisher.sendNotification(caseNotification,
-        String.format(CORRELATION_DATA_ID, METHOD_TEST_TRANSACTIONAL_BEHAVIOUR, testCaseId, initialState));
+        String.format(CORRELATION_DATA_ID, METHOD_CASE_SERVICE_TEST_TRANSACTIONAL_BEHAVIOUR, testCaseId, initialState));
     log.info("just published to queue - last line in service");
   }
 }
