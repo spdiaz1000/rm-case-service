@@ -19,6 +19,6 @@
     <rabbit:template id="caseNotificationRabbitTemplate" connection-factory="connectionFactoryWithConfirmsEnabled" exchange="case-outbound-exchange" routing-key="Case.LifecycleEvents.binding"
                      message-converter="caseNotificationMarshallingMessageConverter" mandatory="true" confirm-callback="bespokeConfirmCallback" return-callback="bespokeReturnCallback"/>
 
-    <bean id="bespokeConfirmCallback" class="uk.gov.ons.ctp.response.casesvc.utility.BespokeConfirmCallback" />
-    <bean id="bespokeReturnCallback" class="uk.gov.ons.ctp.response.casesvc.utility.BespokeReturnCallback" />
+    <bean id="bespokeConfirmCallback" class="uk.gov.ons.ctp.response.casesvc.message.utility.CaseNotificationConfirmCallback" />
+    <bean id="bespokeReturnCallback" class="uk.gov.ons.ctp.response.casesvc.message.utility.CaseNotificationReturnCallback" />
 </beans>
