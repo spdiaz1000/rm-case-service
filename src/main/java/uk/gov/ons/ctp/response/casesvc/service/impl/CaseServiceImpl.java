@@ -419,8 +419,7 @@ public class CaseServiceImpl implements CaseService {
       if (!oldState.equals(newState)) {
         targetCase.setState(newState);
         caseRepo.saveAndFlush(targetCase);
-        // TODO Should be called with correlationDataId
-        notificationPublisher.sendNotification(prepareCaseNotification(targetCase, transitionEvent));
+        notificationPublisher.sendNotification(prepareCaseNotification(targetCase, transitionEvent), "TODO");
       }
     }
   }

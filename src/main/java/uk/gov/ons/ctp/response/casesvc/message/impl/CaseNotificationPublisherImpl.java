@@ -30,16 +30,6 @@ public class CaseNotificationPublisherImpl implements CaseNotificationPublisher 
   private RabbitTemplate rabbitTemplate;
 
   @Override
-  public void sendNotification(CaseNotification caseNotification) {
-    log.debug("Entering sendNotification with CaseNotification {}", caseNotification);
-    CorrelationData correlationData = new CorrelationData();
-    String caseId = caseNotification.getCaseId();
-    correlationData.setId(caseId);
-    rabbitTemplate.convertAndSend(LIFECYCLE_EVENTS_ROUTING_KEY, caseNotification, correlationData);
-    log.info("caseNotification published");
-  }
-
-  @Override
   public void sendNotification(CaseNotification caseNotification, String correlationDataId) {
     log.info("Entering sendNotification with CaseNotification {} and correlationDataId {}", caseNotification,
         correlationDataId);
