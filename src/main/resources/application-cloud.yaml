@@ -111,6 +111,7 @@ rabbitmq:
   host: ${cloud.services.rabbitmq.connection.host}
   port: ${cloud.services.rabbitmq.connection.port}
   virtualhost: ${cloud.services.rabbitmq.connection.virtualhost}
+  channelCacheSize: ${cloud.services.rabbitmq.connection.channelCacheSize}
 
 messaging:
   backoffInitial: 5000

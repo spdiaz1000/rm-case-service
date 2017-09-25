@@ -120,6 +120,8 @@ rabbitmq:
   host: localhost
   port: 6672
   virtualhost: /
+  # When using publisher confirms, the cache size needs to be large enough otherwise channels can be closed before confirms are received.
+  channelCacheSize: 100
 
 messaging:
   backoffInitial: 5000
