@@ -31,8 +31,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.CORRELATION_DATA_ID;
-import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.METHOD_CASE_DISTRIBUTOR_PROCESS_CASE;
+import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.COMMA;
 
 /**
  * This is the 'service' class that distributes cases to the action service. It has a number of injected beans,
@@ -49,6 +48,8 @@ import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.METHO
 @Component
 @Slf4j
 public class CaseDistributor {
+
+  public static final String METHOD_CASE_DISTRIBUTOR_PROCESS_CASE = "processCase";
 
   private static final String CASE_DISTRIBUTOR_LIST_ID = "case";
 
@@ -212,8 +213,12 @@ public class CaseDistributor {
 
     CaseNotification caseNotification = caseService.prepareCaseNotification(caze, event);
     log.debug("Publishing caseNotification...");
-    notificationPublisher.sendNotification(caseNotification,
-        String.format(CORRELATION_DATA_ID, METHOD_CASE_DISTRIBUTOR_PROCESS_CASE, updatedCase.getId(), initialState));
+    StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_DISTRIBUTOR_PROCESS_CASE);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(updatedCase.getId());
+    correlationDataId.append(COMMA);
+    correlationDataId.append(initialState);
+    notificationPublisher.sendNotification(caseNotification, correlationDataId.toString());
   }
 
   /**

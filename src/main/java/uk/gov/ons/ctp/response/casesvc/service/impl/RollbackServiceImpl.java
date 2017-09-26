@@ -5,13 +5,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import uk.gov.ons.ctp.response.casesvc.domain.model.Case;
+import uk.gov.ons.ctp.response.casesvc.domain.repository.CaseNotificationRepository;
 import uk.gov.ons.ctp.response.casesvc.domain.repository.CaseRepository;
 import uk.gov.ons.ctp.response.casesvc.representation.CaseDTO;
 import uk.gov.ons.ctp.response.casesvc.service.RollbackService;
 
 import java.util.UUID;
 
-import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.METHOD_CASE_DISTRIBUTOR_PROCESS_CASE;
+import static uk.gov.ons.ctp.response.casesvc.scheduled.distribution.CaseDistributor.METHOD_CASE_DISTRIBUTOR_PROCESS_CASE;
+import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.METHOD_CASE_SERVICE_CREATE_CASE_EVENT;
 import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.METHOD_CASE_SERVICE_TEST_TRANSACTIONAL_BEHAVIOUR;
 
 @Slf4j
@@ -20,6 +22,9 @@ public class RollbackServiceImpl implements RollbackService {
 
   @Autowired
   private CaseRepository caseRepo;
+
+  @Autowired
+  private CaseNotificationRepository caseNotificationRepository;
 
   @Override
   public void caseNotificationPublish(String correlationDataId) {
@@ -30,6 +35,7 @@ public class RollbackServiceImpl implements RollbackService {
     } catch (InterruptedException e) {
     }
 
+    // TODO Better way than this impl?
     String[] data = correlationDataId.split(",");
     String methodName = data[0];
     log.info("methodName is {}", methodName);
@@ -54,6 +60,12 @@ public class RollbackServiceImpl implements RollbackService {
         caze.setState(CaseDTO.CaseState.valueOf(caseStateToRevertTo));
         caze.setIac(null);
         caseRepo.saveAndFlush(caze);
+        log.info("case now rolledback in db");
+        break;
+      case METHOD_CASE_SERVICE_CREATE_CASE_EVENT:
+
+        caseNotificationRepository.saveAndFlush()
+        log.info("case notification now stored in db - ready for replay");
         break;
       }
     } else {

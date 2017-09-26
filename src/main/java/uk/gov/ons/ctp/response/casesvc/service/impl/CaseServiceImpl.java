@@ -52,9 +52,9 @@ import java.util.UUID;
 @Slf4j
 public class CaseServiceImpl implements CaseService {
 
-  public static final String CORRELATION_DATA_ID = "%s,%s,%s";
+  public static final String COMMA = ",";
   public static final String IAC_OVERUSE_MSG = "More than one case found to be using IAC %s";
-  public static final String METHOD_CASE_DISTRIBUTOR_PROCESS_CASE = "processCase";
+  public static final String METHOD_CASE_SERVICE_CREATE_CASE_EVENT = "createCaseEvent";
   public static final String METHOD_CASE_SERVICE_TEST_TRANSACTIONAL_BEHAVIOUR = "testTransactionalBehaviour";
   public static final String MISSING_NEW_CASE_MSG = "New Case definition missing for case %s";
   public static final String WRONG_OLD_SAMPLE_UNIT_TYPE_MSG =
@@ -419,7 +419,20 @@ public class CaseServiceImpl implements CaseService {
       if (!oldState.equals(newState)) {
         targetCase.setState(newState);
         caseRepo.saveAndFlush(targetCase);
-        notificationPublisher.sendNotification(prepareCaseNotification(targetCase, transitionEvent), "TODO");
+
+        CaseNotification caseNotification = prepareCaseNotification(targetCase, transitionEvent);
+        String caseId = caseNotification.getCaseId();
+        String actionPlanId = caseNotification.getActionPlanId();
+        NotificationType notificationType = caseNotification.getNotificationType();
+
+        StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_CREATE_CASE_EVENT);
+        correlationDataId.append(COMMA);
+        correlationDataId.append(caseId);
+        correlationDataId.append(COMMA);
+        correlationDataId.append(actionPlanId);
+        correlationDataId.append(COMMA);
+        correlationDataId.append(notificationType);
+        notificationPublisher.sendNotification(caseNotification, correlationDataId.toString());
       }
     }
   }
@@ -548,8 +561,12 @@ public class CaseServiceImpl implements CaseService {
     log.debug("just saved to db");
 
     CaseNotification caseNotification = new CaseNotification(testCaseId, "3b136c4b-7a14-4904-9e01-13364dd7b972", null);
-    notificationPublisher.sendNotification(caseNotification,
-        String.format(CORRELATION_DATA_ID, METHOD_CASE_SERVICE_TEST_TRANSACTIONAL_BEHAVIOUR, testCaseId, initialState));
+    StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_TEST_TRANSACTIONAL_BEHAVIOUR);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(testCaseId);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(initialState);
+    notificationPublisher.sendNotification(caseNotification, correlationDataId.toString());
     log.info("just published to queue - last line in service");
   }
 }
