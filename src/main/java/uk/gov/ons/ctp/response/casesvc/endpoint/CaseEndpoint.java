@@ -7,12 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import uk.gov.ons.ctp.common.endpoint.CTPEndpoint;
 import uk.gov.ons.ctp.common.error.CTPException;
@@ -22,13 +17,7 @@ import uk.gov.ons.ctp.response.casesvc.domain.model.Case;
 import uk.gov.ons.ctp.response.casesvc.domain.model.CaseEvent;
 import uk.gov.ons.ctp.response.casesvc.domain.model.CaseGroup;
 import uk.gov.ons.ctp.response.casesvc.domain.model.Category;
-import uk.gov.ons.ctp.response.casesvc.representation.CaseDTO;
-import uk.gov.ons.ctp.response.casesvc.representation.CaseDetailsDTO;
-import uk.gov.ons.ctp.response.casesvc.representation.CaseEventCreationRequestDTO;
-import uk.gov.ons.ctp.response.casesvc.representation.CaseEventDTO;
-import uk.gov.ons.ctp.response.casesvc.representation.CaseGroupDTO;
-import uk.gov.ons.ctp.response.casesvc.representation.CategoryDTO;
-import uk.gov.ons.ctp.response.casesvc.representation.CreatedCaseEventDTO;
+import uk.gov.ons.ctp.response.casesvc.representation.*;
 import uk.gov.ons.ctp.response.casesvc.service.CaseGroupService;
 import uk.gov.ons.ctp.response.casesvc.service.CaseService;
 import uk.gov.ons.ctp.response.casesvc.service.CategoryService;
@@ -302,18 +291,5 @@ public final class CaseEndpoint implements CTPEndpoint {
     caseEvent.setCreatedDateTime(DateTimeUtil.nowUTC());
     caseEvent.setDescription(cat.getShortDescription());
     caseService.createCaseEvent(caseEvent, caseObj);
-  }
-
-  /**
-   * To test for transactional behaviour when publishing to queues
-   *
-   * @return the case found
-   * @throws CTPException something went wrong
-  */
-  @RequestMapping(value = "/transactTest", method = RequestMethod.GET)
-  public ResponseEntity transactTest() throws CTPException {
-    log.info("Entering transactTest ....");
-    caseService.testTransactionalBehaviour();
-    return ResponseEntity.ok().build();
   }
 }

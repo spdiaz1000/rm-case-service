@@ -14,7 +14,7 @@ import java.util.Map;
 
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
-import static uk.gov.ons.ctp.common.state.BasicStateTransitionManager.*;
+import static uk.gov.ons.ctp.common.state.BasicStateTransitionManager.TRANSITION_ERROR_MSG;
 
 /**
  * A test of the state transition manager It simply has to test a single good

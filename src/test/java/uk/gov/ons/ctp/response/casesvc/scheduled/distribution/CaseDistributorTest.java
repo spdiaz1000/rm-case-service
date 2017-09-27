@@ -1,17 +1,5 @@
 package uk.gov.ons.ctp.response.casesvc.scheduled.distribution;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static uk.gov.ons.ctp.response.casesvc.scheduled.distribution.CaseDistributor.METHOD_CASE_DISTRIBUTOR_PROCESS_CASE;
-import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.CORRELATION_DATA_ID;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +27,16 @@ import uk.gov.ons.ctp.response.casesvc.representation.CaseDTO;
 import uk.gov.ons.ctp.response.casesvc.representation.CaseState;
 import uk.gov.ons.ctp.response.casesvc.service.CaseService;
 import uk.gov.ons.ctp.response.casesvc.service.InternetAccessCodeSvcClientService;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static junit.framework.TestCase.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
+import static uk.gov.ons.ctp.response.casesvc.scheduled.distribution.CaseDistributor.METHOD_CASE_DISTRIBUTOR_PROCESS_CASE;
+import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.COMMA;
 
 /**
  * Test the case distributor
@@ -226,26 +224,46 @@ public class CaseDistributorTest {
     verify(caseRepo, times(5)).saveAndFlush(any(Case.class));
     verify(caseService, times(5)).prepareCaseNotification(any(Case.class),
             any(CaseDTO.CaseEvent.class));
-    String correlationDataId1 = String.format(CORRELATION_DATA_ID, METHOD_CASE_DISTRIBUTOR_PROCESS_CASE, CASE_ID_1,
-        CaseDTO.CaseState.SAMPLED_INIT);
+
+    StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_DISTRIBUTOR_PROCESS_CASE);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(CASE_ID_1);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(CaseState.SAMPLED_INIT);
     verify(notificationPublisher, times(1)).sendNotification(any(CaseNotification.class),
-        eq(correlationDataId1));
-    String correlationDataId2 = String.format(CORRELATION_DATA_ID, METHOD_CASE_DISTRIBUTOR_PROCESS_CASE, CASE_ID_2,
-        CaseDTO.CaseState.SAMPLED_INIT);
+        eq(correlationDataId.toString()));
+
+    correlationDataId = new StringBuffer(METHOD_CASE_DISTRIBUTOR_PROCESS_CASE);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(CASE_ID_2);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(CaseState.SAMPLED_INIT);
     verify(notificationPublisher, times(1)).sendNotification(any(CaseNotification.class),
-        eq(correlationDataId2));
-    String correlationDataId3 = String.format(CORRELATION_DATA_ID, METHOD_CASE_DISTRIBUTOR_PROCESS_CASE, CASE_ID_3,
-        CaseDTO.CaseState.REPLACEMENT_INIT);
+        eq(correlationDataId.toString()));
+
+    correlationDataId = new StringBuffer(METHOD_CASE_DISTRIBUTOR_PROCESS_CASE);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(CASE_ID_3);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(CaseState.REPLACEMENT_INIT);
     verify(notificationPublisher, times(1)).sendNotification(any(CaseNotification.class),
-        eq(correlationDataId3));
-    String correlationDataId4 = String.format(CORRELATION_DATA_ID, METHOD_CASE_DISTRIBUTOR_PROCESS_CASE, CASE_ID_4,
-        CaseDTO.CaseState.REPLACEMENT_INIT);
+        eq(correlationDataId.toString()));
+
+    correlationDataId = new StringBuffer(METHOD_CASE_DISTRIBUTOR_PROCESS_CASE);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(CASE_ID_4);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(CaseState.REPLACEMENT_INIT);
     verify(notificationPublisher, times(1)).sendNotification(any(CaseNotification.class),
-        eq(correlationDataId4));
-    String correlationDataId5 = String.format(CORRELATION_DATA_ID, METHOD_CASE_DISTRIBUTOR_PROCESS_CASE, CASE_ID_5,
-        CaseDTO.CaseState.REPLACEMENT_INIT);
+        eq(correlationDataId.toString()));
+
+    correlationDataId = new StringBuffer(METHOD_CASE_DISTRIBUTOR_PROCESS_CASE);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(CASE_ID_5);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(CaseState.REPLACEMENT_INIT);
     verify(notificationPublisher, times(1)).sendNotification(any(CaseNotification.class),
-        eq(correlationDataId5));
+        eq(correlationDataId.toString()));
 
     verify(caseDistributionListManager, times(1)).deleteList(any(String.class),
             any(Boolean.class));

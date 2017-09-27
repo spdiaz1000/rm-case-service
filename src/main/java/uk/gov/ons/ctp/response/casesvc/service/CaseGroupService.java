@@ -1,9 +1,9 @@
 package uk.gov.ons.ctp.response.casesvc.service;
 
-import java.util.UUID;
-
 import uk.gov.ons.ctp.common.service.CTPService;
 import uk.gov.ons.ctp.response.casesvc.domain.model.CaseGroup;
+
+import java.util.UUID;
 
 /**
  * The CaseGroup Service interface defines all business behaviours for operations

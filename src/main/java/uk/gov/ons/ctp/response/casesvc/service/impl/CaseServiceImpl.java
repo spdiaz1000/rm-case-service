@@ -10,11 +10,7 @@ import org.springframework.util.StringUtils;
 import uk.gov.ons.ctp.common.error.CTPException;
 import uk.gov.ons.ctp.common.state.StateTransitionManager;
 import uk.gov.ons.ctp.common.time.DateTimeUtil;
-import uk.gov.ons.ctp.response.casesvc.domain.model.Case;
-import uk.gov.ons.ctp.response.casesvc.domain.model.CaseEvent;
-import uk.gov.ons.ctp.response.casesvc.domain.model.CaseGroup;
-import uk.gov.ons.ctp.response.casesvc.domain.model.Category;
-import uk.gov.ons.ctp.response.casesvc.domain.model.Response;
+import uk.gov.ons.ctp.response.casesvc.domain.model.*;
 import uk.gov.ons.ctp.response.casesvc.domain.repository.CaseEventRepository;
 import uk.gov.ons.ctp.response.casesvc.domain.repository.CaseGroupRepository;
 import uk.gov.ons.ctp.response.casesvc.domain.repository.CaseRepository;
@@ -55,7 +51,6 @@ public class CaseServiceImpl implements CaseService {
   public static final String COMMA = ",";
   public static final String IAC_OVERUSE_MSG = "More than one case found to be using IAC %s";
   public static final String METHOD_CASE_SERVICE_CREATE_CASE_EVENT = "createCaseEvent";
-  public static final String METHOD_CASE_SERVICE_TEST_TRANSACTIONAL_BEHAVIOUR = "testTransactionalBehaviour";
   public static final String MISSING_NEW_CASE_MSG = "New Case definition missing for case %s";
   public static final String WRONG_OLD_SAMPLE_UNIT_TYPE_MSG =
       "Old Case has sampleUnitType %s. It is expected to have sampleUnitType %s.";
@@ -188,16 +183,16 @@ public class CaseServiceImpl implements CaseService {
       log.debug("createdCaseEvent is {}", createdCaseEvent);
 
       // do we need to record a response?
-      recordCaseResponse(category, targetCase, timestamp);
+// zzz     recordCaseResponse(category, targetCase, timestamp);
 
       // does the event transition the case?
       effectTargetCaseStateTransition(category, targetCase);
 
       // should we create an ad hoc action?
-      createAdHocAction(category, caseEvent);
+// zzz     createAdHocAction(category, caseEvent);
 
       // should a new case be created?
-      createNewCase(category, caseEvent, targetCase, newCase);
+// zzz     createNewCase(category, caseEvent, targetCase, newCase);
     }
 
     return createdCaseEvent;
@@ -399,42 +394,59 @@ public class CaseServiceImpl implements CaseService {
    * @throws CTPException when case state transition error
    */
   private void effectTargetCaseStateTransition(Category category, Case targetCase) throws CTPException {
-    CaseDTO.CaseEvent transitionEvent = category.getEventType();
-    if (transitionEvent != null) {
-      // case might have transitioned from actionable to inactionable prev via
-      // DEACTIVATED
-      // so newstate == oldstate, but always want to disable iac if event is
-      // DISABLED (ie as the result
-      // of an online response after a refusal) or ACCOUNT_CREATED (for BRES)
-      if (transitionEvent == CaseDTO.CaseEvent.DISABLED || transitionEvent == CaseDTO.CaseEvent.ACCOUNT_CREATED) {
-        internetAccessCodeSvcClientService.disableIAC(targetCase.getIac());
-      }
+// zzz   CaseDTO.CaseEvent transitionEvent = category.getEventType();
+//    if (transitionEvent != null) {
+//      // case might have transitioned from actionable to inactionable prev via
+//      // DEACTIVATED
+//      // so newstate == oldstate, but always want to disable iac if event is
+//      // DISABLED (ie as the result
+//      // of an online response after a refusal) or ACCOUNT_CREATED (for BRES)
+//      if (transitionEvent == CaseDTO.CaseEvent.DISABLED || transitionEvent == CaseDTO.CaseEvent.ACCOUNT_CREATED) {
+//        internetAccessCodeSvcClientService.disableIAC(targetCase.getIac());
+//      }
+//
+//      CaseState oldState = targetCase.getState();
+//      CaseState newState = null;
+//      // make the transition
+//      newState = caseSvcStateTransitionManager.transition(oldState, transitionEvent);
+//
+//      // was a state change effected?
+//      if (!oldState.equals(newState)) {
+//        targetCase.setState(newState);
+//        caseRepo.saveAndFlush(targetCase);
+//
+//        CaseNotification caseNotification = prepareCaseNotification(targetCase, transitionEvent);
+//        String caseId = caseNotification.getCaseId();
+//        String actionPlanId = caseNotification.getActionPlanId();
+//        NotificationType notificationType = caseNotification.getNotificationType();
+//
+//        StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_CREATE_CASE_EVENT);
+//        correlationDataId.append(COMMA);
+//        correlationDataId.append(caseId);
+//        correlationDataId.append(COMMA);
+//        correlationDataId.append(actionPlanId);
+//        correlationDataId.append(COMMA);
+//        correlationDataId.append(notificationType);
+//        notificationPublisher.sendNotification(caseNotification, correlationDataId.toString());
+//      }
+//    }
 
-      CaseState oldState = targetCase.getState();
-      CaseState newState = null;
-      // make the transition
-      newState = caseSvcStateTransitionManager.transition(oldState, transitionEvent);
+    targetCase.setState(CaseState.INACTIONABLE);
+    caseRepo.saveAndFlush(targetCase);
 
-      // was a state change effected?
-      if (!oldState.equals(newState)) {
-        targetCase.setState(newState);
-        caseRepo.saveAndFlush(targetCase);
+    CaseNotification caseNotification = prepareCaseNotification(targetCase, CaseDTO.CaseEvent.DISABLED);
+    String caseId = caseNotification.getCaseId();
+    String actionPlanId = caseNotification.getActionPlanId();
+    NotificationType notificationType = caseNotification.getNotificationType();
 
-        CaseNotification caseNotification = prepareCaseNotification(targetCase, transitionEvent);
-        String caseId = caseNotification.getCaseId();
-        String actionPlanId = caseNotification.getActionPlanId();
-        NotificationType notificationType = caseNotification.getNotificationType();
-
-        StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_CREATE_CASE_EVENT);
-        correlationDataId.append(COMMA);
-        correlationDataId.append(caseId);
-        correlationDataId.append(COMMA);
-        correlationDataId.append(actionPlanId);
-        correlationDataId.append(COMMA);
-        correlationDataId.append(notificationType);
-        notificationPublisher.sendNotification(caseNotification, correlationDataId.toString());
-      }
-    }
+    StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_CREATE_CASE_EVENT);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(caseId);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(actionPlanId);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(notificationType);
+    notificationPublisher.sendNotification(caseNotification, correlationDataId.toString());
   }
 
   /**
@@ -546,27 +558,5 @@ public class CaseServiceImpl implements CaseService {
     newCase.setCreatedBy(Constants.SYSTEM);
 
     return newCase;
-  }
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-  public void testTransactionalBehaviour() {
-    String testCaseId = "551308fb-2d5a-4477-92c3-649d915834c3";
-    log.info("Entering testTransactionalBehaviour with testCaseId {}", testCaseId);
-
-    Case caze = caseRepo.findById(UUID.fromString(testCaseId));
-    CaseState initialState = caze.getState();
-
-    caze.setState(CaseState.SAMPLED_INIT);
-    caseRepo.saveAndFlush(caze);
-    log.debug("just saved to db");
-
-    CaseNotification caseNotification = new CaseNotification(testCaseId, "3b136c4b-7a14-4904-9e01-13364dd7b972", null);
-    StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_TEST_TRANSACTIONAL_BEHAVIOUR);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(testCaseId);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(initialState);
-    notificationPublisher.sendNotification(caseNotification, correlationDataId.toString());
-    log.info("just published to queue - last line in service");
   }
 }

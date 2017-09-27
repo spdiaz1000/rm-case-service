@@ -99,6 +99,7 @@ CREATE TABLE response (
     inboundChannel character varying(10),
     responseDateTime timestamp with time zone
 );
+
 --add primary keys to tables
 
 ALTER TABLE ONLY "case"
@@ -118,6 +119,7 @@ ALTER TABLE ONLY response
 
 ALTER TABLE ONLY casestate
     ADD CONSTRAINT state_pkey PRIMARY KEY (state);
+
 -- add foreign key constraints
 
 ALTER TABLE ONLY "case"
@@ -138,4 +140,3 @@ ALTER TABLE ONLY "case"
 
 ALTER TABLE ONLY casegroup
     ADD CONSTRAINT casegroup_uuid_key UNIQUE (id);
-

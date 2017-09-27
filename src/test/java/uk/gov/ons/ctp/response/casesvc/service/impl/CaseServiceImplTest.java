@@ -23,6 +23,7 @@ import uk.gov.ons.ctp.response.casesvc.domain.repository.CaseRepository;
 import uk.gov.ons.ctp.response.casesvc.domain.repository.CategoryRepository;
 import uk.gov.ons.ctp.response.casesvc.message.CaseNotificationPublisher;
 import uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification;
+import uk.gov.ons.ctp.response.casesvc.message.notification.NotificationType;
 import uk.gov.ons.ctp.response.casesvc.representation.CaseDTO;
 import uk.gov.ons.ctp.response.casesvc.representation.CaseState;
 import uk.gov.ons.ctp.response.casesvc.representation.CategoryDTO;
@@ -41,15 +42,11 @@ import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.never;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 import static uk.gov.ons.ctp.common.state.BasicStateTransitionManager.TRANSITION_ERROR_MSG;
 import static uk.gov.ons.ctp.response.casesvc.representation.CaseDTO.CaseEvent.ACCOUNT_CREATED;
-import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.IAC_OVERUSE_MSG;
-import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.MISSING_NEW_CASE_MSG;
-import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.WRONG_OLD_SAMPLE_UNIT_TYPE_MSG;
+import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.*;
 
 /**
  * Test the CaseServiceImpl primarily the createCaseEvent functionality. Note
@@ -132,6 +129,8 @@ public class CaseServiceImplTest {
 
   private static final Integer CASEGROUP_PK = 1;
 
+  private static final String ACTION_PLAN_ID_FOR_CASE_PK_11 = "4381731e-e386-41a1-8462-26373744db81";
+  private static final String CASE_ID_FOR_CASE_PK_11 = "91fda7f2-3825-4bd4-baef-943a0ccf0857";
   private static final String CASEEVENT_CREATEDBY = "unit test";
   private static final String CASEEVENT_DESCRIPTION = "a desc";
   private static final String CASEEVENT_SUBCATEGORY = "sub category";
@@ -1442,8 +1441,19 @@ public class CaseServiceImplTest {
     Case oldCase = argument.getValue();
     assertEquals(CaseState.INACTIONABLE, oldCase.getState());
 
+<<<<<<< HEAD
+=======
+    StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_CREATE_CASE_EVENT);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(CASE_ID_FOR_CASE_PK_11);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(ACTION_PLAN_ID_FOR_CASE_PK_11);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(NotificationType.DISABLED);
+>>>>>>> CTPA-1511 CaseNotification now stored in DB if they can not  reach a queue - note the zzz commented out code: temporary measure to enable quick testing
     verify(notificationPublisher, times(1)).sendNotification(any(CaseNotification.class),
-        any(String.class));
+        eq(correlationDataId.toString()));
+
     // no new action to be created
     verify(actionSvcClientService, times(0)).createAndPostAction(any(String.class),
         any(UUID.class), any(String.class));

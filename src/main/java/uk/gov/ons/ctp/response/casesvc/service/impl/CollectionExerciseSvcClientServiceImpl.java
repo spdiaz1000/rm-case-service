@@ -1,10 +1,8 @@
 package uk.gov.ons.ctp.response.casesvc.service.impl;
 
-import java.io.IOException;
-import java.util.UUID;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import net.sourceforge.cobertura.CoverageIgnore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
@@ -13,8 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-
-import net.sourceforge.cobertura.CoverageIgnore;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
@@ -22,6 +18,9 @@ import uk.gov.ons.ctp.common.rest.RestUtility;
 import uk.gov.ons.ctp.response.casesvc.config.AppConfig;
 import uk.gov.ons.ctp.response.casesvc.service.CollectionExerciseSvcClientService;
 import uk.gov.ons.ctp.response.collection.exercise.representation.CollectionExerciseDTO;
+
+import java.io.IOException;
+import java.util.UUID;
 
 /**
  * The service to retrieve a CollectionExercise
