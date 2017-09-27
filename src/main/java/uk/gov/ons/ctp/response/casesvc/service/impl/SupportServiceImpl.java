@@ -49,7 +49,7 @@ public class SupportServiceImpl implements SupportService {
     String[] data = correlationDataId.split(COMMA);
     String methodName = data[0];
     log.info("methodName is {}", methodName);
-    String primaryKey = data[2];
+    String primaryKey = data[1];
     log.info("primaryKey is {}", primaryKey);
 
     if (methodName.equalsIgnoreCase(METHOD_SUPPORT_SERVICE_REPLAY)) {
