@@ -33,6 +33,6 @@ public class CaseNotificationReturnCallback implements RabbitTemplate.ReturnCall
     String correlationIdString = (String)messageProps.getHeaders().get(HEADER_USED_TO_ROLLBACK);
     log.info("correlationIdString is {}", correlationIdString);
 
-    rollbackService.caseNotificationPublish(correlationIdString);
+    rollbackService.caseNotificationPublish(correlationIdString, true);
   }
 }

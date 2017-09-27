@@ -29,7 +29,7 @@ public class RollbackServiceImpl implements RollbackService {
   private CaseNotificationRepository caseNotificationRepository;
 
   @Override
-  public void caseNotificationPublish(String correlationDataId) {
+  public void caseNotificationPublish(String correlationDataId, boolean msgReturned) {
     log.info("entering caseNotificationPublish with correlationDataId {}", correlationDataId);
 
     // Pause below is required to prevent exception 'Row was updated or deleted by another transaction'
@@ -86,7 +86,21 @@ public class RollbackServiceImpl implements RollbackService {
         break;
 
       case METHOD_SUPPORT_SERVICE_REPLAY:
-        // we do nothing because we are trying to replay a message which is already stored in DB.
+        if (msgReturned) {
+          /**
+           * scenario where the queue has been deleted. This should never happen because, at this stage, there has
+           * already been a manual intervention to solve the RabbitMQ config and it is considered correct for a replay.
+           *
+           * We throw a RuntimeException here to ensure that CaseNotificationConfirmCallback.confirm is NOT played as
+           * ack would be at true because the message reached the Exchange and we would remove the message from the DB.
+           * This would be incorrect as the message has NOT reached the RabbitMQ queue.
+           */
+          String errorMsg = "Unexpected situation. Replay was triggered manually but RabbitMQ queue has been deleted.";
+          log.error(errorMsg);
+          throw new RuntimeException(errorMsg);
+        } else {
+          // we do nothing because we are trying to replay a message which is already stored in DB.
+        }
         break;
     }
   }

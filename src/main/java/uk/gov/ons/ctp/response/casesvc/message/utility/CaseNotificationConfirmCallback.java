@@ -27,11 +27,12 @@ public class CaseNotificationConfirmCallback implements RabbitTemplate.ConfirmCa
   public void confirm(CorrelationData correlationData, boolean ack, String cause) {
     String correlationDataId = correlationData.getId();
     log.info("confirming message with ack {} - cause {} - correlationDataId {}", ack, cause, correlationDataId);
+
     if (!ack) {
       String errorMsg = String.format(DELIVERY_FAILURE_MSG, cause);
       log.error(errorMsg);
 
-      rollbackService.caseNotificationPublish(correlationDataId);
+      rollbackService.caseNotificationPublish(correlationDataId, false);
     } else {
       supportService.removeFromDatabase(correlationDataId);
     }
