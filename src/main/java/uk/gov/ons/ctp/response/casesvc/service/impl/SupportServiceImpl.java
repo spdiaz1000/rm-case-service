@@ -52,13 +52,15 @@ public class SupportServiceImpl implements SupportService {
     String primaryKey = data[2];
     log.info("primaryKey is {}", primaryKey);
 
-    int primaryKeyValue = new Integer(primaryKey);
-    CaseNotification caseNotification = caseNotificationRepository.findOne(primaryKeyValue);
-    if (caseNotification != null) {
-      caseNotificationRepository.delete(primaryKeyValue);
-      log.info("caseNotification with primary key {} now deleted", primaryKeyValue);
-    } else {
-      log.error("unexpected situation. No caseNotification found with primary key {}", primaryKeyValue);
+    if (methodName.equalsIgnoreCase(METHOD_SUPPORT_SERVICE_REPLAY)) {
+      int primaryKeyValue = new Integer(primaryKey);
+      CaseNotification caseNotification = caseNotificationRepository.findOne(primaryKeyValue);
+      if (caseNotification != null) {
+        caseNotificationRepository.delete(primaryKeyValue);
+        log.info("caseNotification with primary key {} now deleted", primaryKeyValue);
+      } else {
+        log.error("unexpected situation. No caseNotification found with primary key {}", primaryKeyValue);
+      }
     }
   }
 
