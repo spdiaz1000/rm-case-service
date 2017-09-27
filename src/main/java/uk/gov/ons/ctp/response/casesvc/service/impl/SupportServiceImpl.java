@@ -31,7 +31,7 @@ public class SupportServiceImpl implements SupportService {
   public void replay(String msgType) {
     List<CaseNotification> caseNotifications = caseNotificationRepository.findAll();
 
-    StringBuffer correlationDataId = null;
+    StringBuffer correlationDataId;
     for (CaseNotification caseNotification : caseNotifications) {
       correlationDataId = new StringBuffer(METHOD_SUPPORT_SERVICE_REPLAY);
       correlationDataId.append(COMMA);
