@@ -17,7 +17,7 @@ import uk.gov.ons.ctp.response.casesvc.service.SupportService;
 @Slf4j
 public class SupportEndpoint implements CTPEndpoint {
 
-  private static final String UNEXPECTED_MSG_TYPE = "Unexpected message type: %s";
+  public static final String UNEXPECTED_MSG_TYPE = "Unexpected message type: %s";
 
   @Autowired
   private SupportService supportService;
