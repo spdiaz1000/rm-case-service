@@ -6,6 +6,7 @@ import org.springframework.amqp.rabbit.support.CorrelationData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.ons.ctp.response.casesvc.service.RollbackService;
+import uk.gov.ons.ctp.response.casesvc.service.SupportService;
 
 /**
  * Utility class to deal with Publisher Confirms for CaseNotifications
@@ -19,6 +20,9 @@ public class CaseNotificationConfirmCallback implements RabbitTemplate.ConfirmCa
   @Autowired
   private RollbackService rollbackService;
 
+  @Autowired
+  private SupportService supportService;
+
   @Override
   public void confirm(CorrelationData correlationData, boolean ack, String cause) {
     String correlationDataId = correlationData.getId();
@@ -28,6 +32,8 @@ public class CaseNotificationConfirmCallback implements RabbitTemplate.ConfirmCa
       log.error(errorMsg);
 
       rollbackService.caseNotificationPublish(correlationDataId);
+    } else {
+      supportService.removeFromDatabase(correlationDataId);
     }
   }
 }

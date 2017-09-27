@@ -1,5 +1,9 @@
 package uk.gov.ons.ctp.response.casesvc.service;
 
+/**
+ * The service dedicated to rollbacks required when a published message fails to reach a RabbitMQ queue. This occurs
+ * when an exchange or a queue is badly configured/deleted.
+ */
 public interface RollbackService {
 
   /**

@@ -16,6 +16,7 @@ import java.util.UUID;
 import static uk.gov.ons.ctp.response.casesvc.scheduled.distribution.CaseDistributor.METHOD_CASE_DISTRIBUTOR_PROCESS_CASE;
 import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.COMMA;
 import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.METHOD_CASE_SERVICE_CREATE_CASE_EVENT;
+import static uk.gov.ons.ctp.response.casesvc.service.impl.SupportServiceImpl.METHOD_SUPPORT_SERVICE_REPLAY;
 
 @Slf4j
 @Service
@@ -82,6 +83,10 @@ public class RollbackServiceImpl implements RollbackService {
           log.error("Unexpected situation. caseId {} - actionPlanId {} - notificationType {}", caseId, actionPlanId,
               notificationType);
         }
+        break;
+
+      case METHOD_SUPPORT_SERVICE_REPLAY:
+        // we do nothing because we are trying to replay a message which is already stored in DB.
         break;
     }
   }
