@@ -26,6 +26,7 @@ public class SupportServiceImplTest {
 
   private static final String CASE_NOTIFICATION = "CaseNotification";
   private static final String DISABLED = "DISABLED";
+  public static final String UNEXPECTED_METHOD_NAME = "someMethod";
 
   private static final UUID CASE_ID_1 = UUID.fromString("551308fb-2d5a-4477-92c3-649d915834c1");
   private static final UUID CASE_ID_2 = UUID.fromString("551308fb-2d5a-4477-92c3-649d915834c2");
@@ -88,5 +89,47 @@ public class SupportServiceImplTest {
     correlationDataId2.append(COMMA);
     correlationDataId2.append("2");
     assertThat(correlationdataIdList, containsInAnyOrder(correlationDataId1.toString(), correlationDataId2.toString()));
+  }
+
+  @Test
+  public void removeFromDatabaseUnexpectedMethodName() {
+    StringBuffer correlationDataId1 = new StringBuffer(UNEXPECTED_METHOD_NAME);
+    correlationDataId1.append(COMMA);
+    correlationDataId1.append("1");
+    supportService.removeFromDatabase(correlationDataId1.toString());
+
+    verify(caseNotificationRepository, never()).findOne(any(Integer.class));
+    verify(caseNotificationRepository, never()).delete(any(Integer.class));
+  }
+
+  @Test
+  public void removeFromDatabaseExpectedMethodNameButNoCaseNotificationFound() {
+    when(caseNotificationRepository.findOne(any(Integer.class))).thenReturn(null);
+
+    StringBuffer correlationDataId1 = new StringBuffer(METHOD_SUPPORT_SERVICE_REPLAY);
+    correlationDataId1.append(COMMA);
+    correlationDataId1.append("1");
+    supportService.removeFromDatabase(correlationDataId1.toString());
+
+    verify(caseNotificationRepository, times(1)).findOne(any(Integer.class));
+    verify(caseNotificationRepository, never()).delete(any(Integer.class));
+  }
+
+  @Test
+  public void removeFromDatabaseExpectedMethodNameAndCaseNotificationFound() {
+    CaseNotification caseNotification = CaseNotification.builder()
+        .caseId(CASE_ID_1)
+        .actionPlanId(ACTIONPLAN_ID_1)
+        .notificationType(DISABLED)
+        .build();
+    when(caseNotificationRepository.findOne(any(Integer.class))).thenReturn(caseNotification);
+
+    StringBuffer correlationDataId1 = new StringBuffer(METHOD_SUPPORT_SERVICE_REPLAY);
+    correlationDataId1.append(COMMA);
+    correlationDataId1.append("1");
+    supportService.removeFromDatabase(correlationDataId1.toString());
+
+    verify(caseNotificationRepository, times(1)).findOne(any(Integer.class));
+    verify(caseNotificationRepository, times(1)).delete(eq(1));
   }
 }
