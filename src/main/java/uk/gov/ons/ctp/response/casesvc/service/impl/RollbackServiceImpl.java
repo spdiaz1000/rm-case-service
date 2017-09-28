@@ -22,6 +22,9 @@ import static uk.gov.ons.ctp.response.casesvc.service.impl.SupportServiceImpl.ME
 @Service
 public class RollbackServiceImpl implements RollbackService {
 
+  public static final String UNEXPECTED_SITUATION_ERRRO_MSG =
+      "Unexpected situation. Replay was triggered manually but RabbitMQ queue has been deleted.";
+
   @Autowired
   private CaseRepository caseRepo;
 
@@ -95,9 +98,8 @@ public class RollbackServiceImpl implements RollbackService {
            * ack would be at true because the message reached the Exchange and we would remove the message from the DB.
            * This would be incorrect as the message has NOT reached the RabbitMQ queue.
            */
-          String errorMsg = "Unexpected situation. Replay was triggered manually but RabbitMQ queue has been deleted.";
-          log.error(errorMsg);
-          throw new RuntimeException(errorMsg);
+          log.error(UNEXPECTED_SITUATION_ERRRO_MSG);
+          throw new RuntimeException(UNEXPECTED_SITUATION_ERRRO_MSG);
         } else {
           // we do nothing because we are trying to replay a message which is already stored in DB.
         }
