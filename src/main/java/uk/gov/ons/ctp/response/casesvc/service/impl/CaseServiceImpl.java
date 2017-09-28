@@ -183,16 +183,16 @@ public class CaseServiceImpl implements CaseService {
       log.debug("createdCaseEvent is {}", createdCaseEvent);
 
       // do we need to record a response?
-// zzz     recordCaseResponse(category, targetCase, timestamp);
+      recordCaseResponse(category, targetCase, timestamp);
 
       // does the event transition the case?
       effectTargetCaseStateTransition(category, targetCase);
 
       // should we create an ad hoc action?
-// zzz     createAdHocAction(category, caseEvent);
+      createAdHocAction(category, caseEvent);
 
       // should a new case be created?
-// zzz     createNewCase(category, caseEvent, targetCase, newCase);
+      createNewCase(category, caseEvent, targetCase, newCase);
     }
 
     return createdCaseEvent;
@@ -394,59 +394,59 @@ public class CaseServiceImpl implements CaseService {
    * @throws CTPException when case state transition error
    */
   private void effectTargetCaseStateTransition(Category category, Case targetCase) throws CTPException {
-// zzz   CaseDTO.CaseEvent transitionEvent = category.getEventType();
-//    if (transitionEvent != null) {
-//      // case might have transitioned from actionable to inactionable prev via
-//      // DEACTIVATED
-//      // so newstate == oldstate, but always want to disable iac if event is
-//      // DISABLED (ie as the result
-//      // of an online response after a refusal) or ACCOUNT_CREATED (for BRES)
-//      if (transitionEvent == CaseDTO.CaseEvent.DISABLED || transitionEvent == CaseDTO.CaseEvent.ACCOUNT_CREATED) {
-//        internetAccessCodeSvcClientService.disableIAC(targetCase.getIac());
-//      }
-//
-//      CaseState oldState = targetCase.getState();
-//      CaseState newState = null;
-//      // make the transition
-//      newState = caseSvcStateTransitionManager.transition(oldState, transitionEvent);
-//
-//      // was a state change effected?
-//      if (!oldState.equals(newState)) {
-//        targetCase.setState(newState);
-//        caseRepo.saveAndFlush(targetCase);
-//
-//        CaseNotification caseNotification = prepareCaseNotification(targetCase, transitionEvent);
-//        String caseId = caseNotification.getCaseId();
-//        String actionPlanId = caseNotification.getActionPlanId();
-//        NotificationType notificationType = caseNotification.getNotificationType();
-//
-//        StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_CREATE_CASE_EVENT);
-//        correlationDataId.append(COMMA);
-//        correlationDataId.append(caseId);
-//        correlationDataId.append(COMMA);
-//        correlationDataId.append(actionPlanId);
-//        correlationDataId.append(COMMA);
-//        correlationDataId.append(notificationType);
-//        notificationPublisher.sendNotification(caseNotification, correlationDataId.toString());
-//      }
-//    }
+    CaseDTO.CaseEvent transitionEvent = category.getEventType();
+    if (transitionEvent != null) {
+      // case might have transitioned from actionable to inactionable prev via
+      // DEACTIVATED
+      // so newstate == oldstate, but always want to disable iac if event is
+      // DISABLED (ie as the result
+      // of an online response after a refusal) or ACCOUNT_CREATED (for BRES)
+      if (transitionEvent == CaseDTO.CaseEvent.DISABLED || transitionEvent == CaseDTO.CaseEvent.ACCOUNT_CREATED) {
+        internetAccessCodeSvcClientService.disableIAC(targetCase.getIac());
+      }
 
-    targetCase.setState(CaseState.INACTIONABLE);
-    caseRepo.saveAndFlush(targetCase);
+      CaseState oldState = targetCase.getState();
+      CaseState newState = null;
+      // make the transition
+      newState = caseSvcStateTransitionManager.transition(oldState, transitionEvent);
 
-    CaseNotification caseNotification = prepareCaseNotification(targetCase, CaseDTO.CaseEvent.DISABLED);
-    String caseId = caseNotification.getCaseId();
-    String actionPlanId = caseNotification.getActionPlanId();
-    NotificationType notificationType = caseNotification.getNotificationType();
+      // was a state change effected?
+      if (!oldState.equals(newState)) {
+        targetCase.setState(newState);
+        caseRepo.saveAndFlush(targetCase);
 
-    StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_CREATE_CASE_EVENT);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(caseId);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(actionPlanId);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(notificationType);
-    notificationPublisher.sendNotification(caseNotification, correlationDataId.toString());
+        CaseNotification caseNotification = prepareCaseNotification(targetCase, transitionEvent);
+        String caseId = caseNotification.getCaseId();
+        String actionPlanId = caseNotification.getActionPlanId();
+        NotificationType notificationType = caseNotification.getNotificationType();
+
+        StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_CREATE_CASE_EVENT);
+        correlationDataId.append(COMMA);
+        correlationDataId.append(caseId);
+        correlationDataId.append(COMMA);
+        correlationDataId.append(actionPlanId);
+        correlationDataId.append(COMMA);
+        correlationDataId.append(notificationType);
+        notificationPublisher.sendNotification(caseNotification, correlationDataId.toString());
+      }
+    }
+
+//    targetCase.setState(CaseState.INACTIONABLE);
+//    caseRepo.saveAndFlush(targetCase);
+//
+//    CaseNotification caseNotification = prepareCaseNotification(targetCase, CaseDTO.CaseEvent.DISABLED);
+//    String caseId = caseNotification.getCaseId();
+//    String actionPlanId = caseNotification.getActionPlanId();
+//    NotificationType notificationType = caseNotification.getNotificationType();
+//
+//    StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_CREATE_CASE_EVENT);
+//    correlationDataId.append(COMMA);
+//    correlationDataId.append(caseId);
+//    correlationDataId.append(COMMA);
+//    correlationDataId.append(actionPlanId);
+//    correlationDataId.append(COMMA);
+//    correlationDataId.append(notificationType);
+//    notificationPublisher.sendNotification(caseNotification, correlationDataId.toString());
   }
 
   /**
