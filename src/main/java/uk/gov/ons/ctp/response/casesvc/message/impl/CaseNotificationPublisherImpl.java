@@ -22,7 +22,7 @@ import uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification;
 public class CaseNotificationPublisherImpl implements CaseNotificationPublisher {
 
   public static final String HEADER_USED_TO_ROLLBACK = "correlationDataId";
-  private static final String LIFECYCLE_EVENTS_ROUTING_KEY = "Case.LifecycleEvents.binding";
+  public static final String LIFECYCLE_EVENTS_ROUTING_KEY = "Case.LifecycleEvents.binding";
 
   @Qualifier("caseNotificationRabbitTemplate")
   @Autowired
