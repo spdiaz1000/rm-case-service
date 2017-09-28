@@ -2,6 +2,7 @@ package uk.gov.ons.ctp.response.casesvc.service.impl;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -9,6 +10,7 @@ import uk.gov.ons.ctp.response.casesvc.domain.model.Case;
 import uk.gov.ons.ctp.response.casesvc.domain.model.CaseNotification;
 import uk.gov.ons.ctp.response.casesvc.domain.repository.CaseNotificationRepository;
 import uk.gov.ons.ctp.response.casesvc.domain.repository.CaseRepository;
+import uk.gov.ons.ctp.response.casesvc.message.notification.NotificationType;
 import uk.gov.ons.ctp.response.casesvc.representation.CaseState;
 
 import java.util.UUID;
@@ -20,13 +22,15 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 import static uk.gov.ons.ctp.response.casesvc.scheduled.distribution.CaseDistributor.METHOD_CASE_DISTRIBUTOR_PROCESS_CASE;
 import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.COMMA;
+import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.METHOD_CASE_SERVICE_CREATE_CASE_EVENT;
 import static uk.gov.ons.ctp.response.casesvc.service.impl.RollbackServiceImpl.UNEXPECTED_SITUATION_ERRRO_MSG;
 import static uk.gov.ons.ctp.response.casesvc.service.impl.SupportServiceImpl.METHOD_SUPPORT_SERVICE_REPLAY;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RollbackServiceImplTest {
 
-  private static final String CASE_ID_1 ="551308fb-2d5a-4477-92c3-649d915834c1";
+  private static final String CASE_ID_1 = "551308fb-2d5a-4477-92c3-649d915834c1";
+  private static final String ACTION_PLAN_ID_1 = "551308fb-2d5a-4477-92c3-649d915834c2";
 
   @Mock
   private CaseRepository caseRepo;
@@ -90,7 +94,7 @@ public class RollbackServiceImplTest {
   }
 
   @Test
-  public void testCaseNotificationPublishMethodCaseDistributorProcessCas() {
+  public void testCaseNotificationPublishMethodCaseDistributorProcessCase() {
     UUID caseId = UUID.fromString(CASE_ID_1);
     Case caze = Case.builder().state(CaseState.ACTIONABLE).iac("ABCD EFGH IJKL MNOP").build();
     when(caseRepo.findById(caseId)).thenReturn(caze);
@@ -107,5 +111,27 @@ public class RollbackServiceImplTest {
     caze.setState(CaseState.ACTIONABLE);
     verify(caseRepo, times(1)).saveAndFlush(eq(caze));
     verify(caseNotificationRepository, never()).saveAndFlush(any(CaseNotification.class));
+  }
+
+  @Test
+  public void testCaseNotificationPublishMethodCaseServiceCreateEvent() {
+    StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_CREATE_CASE_EVENT);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(CASE_ID_1);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(ACTION_PLAN_ID_1);
+    correlationDataId.append(COMMA);
+    correlationDataId.append(NotificationType.DISABLED);
+    rollbackService.caseNotificationPublish(correlationDataId.toString(), false);
+
+    verify(caseRepo, never()).findById(any(UUID.class));
+    verify(caseRepo, never()).saveAndFlush(any(Case.class));
+
+    ArgumentCaptor<CaseNotification> caseNotificationArgument = ArgumentCaptor.forClass(CaseNotification.class);
+    verify(caseNotificationRepository, times(1)).saveAndFlush(caseNotificationArgument.capture());
+    CaseNotification caseNotification = caseNotificationArgument.getValue();
+    assertEquals(UUID.fromString(CASE_ID_1), caseNotification.getCaseId());
+    assertEquals(UUID.fromString(ACTION_PLAN_ID_1), caseNotification.getActionPlanId());
+    assertEquals(NotificationType.DISABLED.name(), caseNotification.getNotificationType());
   }
 }
