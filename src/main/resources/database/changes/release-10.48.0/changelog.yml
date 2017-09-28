@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 10.48.0-1
+      author: P Brossier
+      changes:
+        - sqlFile:
+            comment: to be able to store for case notification
+            path: table_case_notification.sql
+            relativeToChangelogFile: true
+            splitStatements: false

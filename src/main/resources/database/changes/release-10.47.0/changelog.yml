@@ -6,7 +6,7 @@ databaseChangeLog:
       changes:
         - sqlFile:
             comment: Schema changes
-            path: table_case_notification.sql
+            path: category_offline_response.sql
             relativeToChangelogFile: true
             splitStatements: false
 
@@ -17,15 +17,5 @@ databaseChangeLog:
         - sqlFile:
             comment: standing data change
             path: removal_of_report_from_displayname.sql
-            relativeToChangelogFile: true
-            splitStatements: false
-
-  - changeSet:
-      id: 10.47.0-3
-      author: P Brossier
-      changes:
-        - sqlFile:
-            comment: to be able to store for case notification
-            path: table_case_notification.sql
             relativeToChangelogFile: true
             splitStatements: false
