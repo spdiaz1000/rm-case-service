@@ -13,6 +13,9 @@ import uk.gov.ons.ctp.response.casesvc.message.notification.NotificationType;
 
 import java.util.*;
 
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.COMMA;
@@ -57,18 +60,33 @@ public class SupportServiceImplTest {
 
     supportService.replay(CASE_NOTIFICATION);
 
-    uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification caseNotificationMsg1 = new uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification(
-        CASE_ID_1.toString(),
-        ACTIONPLAN_ID_1.toString(),
-        NotificationType.valueOf(DISABLED));
-    StringBuffer correlationDataId = new StringBuffer(METHOD_SUPPORT_SERVICE_REPLAY);
-    correlationDataId.append(COMMA);
-    correlationDataId.append("1");
-
-    ArgumentCaptor<uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification> caseNotificationArgument = ArgumentCaptor.forClass(uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification.class);
+    ArgumentCaptor<uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification> caseNotificationArgument =
+        ArgumentCaptor.forClass(uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification.class);
     ArgumentCaptor<String> correlationDataIdArgument = ArgumentCaptor.forClass(String.class);
     verify(caseNotificationPublisher, times(2)).sendNotification(caseNotificationArgument.capture(), correlationDataIdArgument.capture());
 
-    // TODO assertions on what has been captured
+
+    List<uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification> caseNotificationList =  caseNotificationArgument.getAllValues();
+    assertEquals(2, caseNotificationList.size());
+
+    uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification caseNotificationMsg1 = caseNotificationList.get(0);
+    assertEquals(CASE_ID_1.toString(), caseNotificationMsg1.getCaseId());
+    assertEquals(ACTIONPLAN_ID_1.toString(), caseNotificationMsg1.getActionPlanId());
+    assertEquals(NotificationType.valueOf(DISABLED), caseNotificationMsg1.getNotificationType());
+    uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification caseNotificationMsg2 = caseNotificationList.get(1);
+    assertEquals(CASE_ID_2.toString(), caseNotificationMsg2.getCaseId());
+    assertEquals(ACTIONPLAN_ID_2.toString(), caseNotificationMsg2.getActionPlanId());
+    assertEquals(NotificationType.valueOf(DISABLED), caseNotificationMsg2.getNotificationType());
+
+    List<String> correlationdataIdList = correlationDataIdArgument.getAllValues();
+    assertEquals(2, correlationdataIdList.size());
+
+    StringBuffer correlationDataId1 = new StringBuffer(METHOD_SUPPORT_SERVICE_REPLAY);
+    correlationDataId1.append(COMMA);
+    correlationDataId1.append("1");
+    StringBuffer correlationDataId2 = new StringBuffer(METHOD_SUPPORT_SERVICE_REPLAY);
+    correlationDataId2.append(COMMA);
+    correlationDataId2.append("2");
+    assertThat(correlationdataIdList, containsInAnyOrder(correlationDataId1.toString(), correlationDataId2.toString()));
   }
 }
