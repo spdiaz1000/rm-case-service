@@ -25,13 +25,10 @@ public class SupportServiceImpl implements SupportService {
   @Autowired
   private CaseNotificationPublisher caseNotificationPublisher;
 
-  // TODO We assume below that it is a CaseNotification type. Enough for now as this is the only tye of messages
-  // TODO published by the CaseSvc. Make it generic in due course (msgType to be added to correlationDataId).
   @Override
-  public void replay(String msgType) {
+  public void replayCaseNotification() {
     List<CaseNotification> caseNotifications = caseNotificationRepository.findAll();
 
-    StringBuffer correlationDataId;
     for (CaseNotification caseNotification : caseNotifications) {
       caseNotificationPublisher.sendNotification(prepareCaseNotification(caseNotification),
           CorrelationDataIdUtils.providerForSupportService(caseNotification.getCaseNotificationPK()));

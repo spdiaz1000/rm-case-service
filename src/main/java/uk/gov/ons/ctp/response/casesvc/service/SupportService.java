@@ -6,11 +6,9 @@ package uk.gov.ons.ctp.response.casesvc.service;
 public interface SupportService {
 
   /**
-   * To replay messages of the given type that are currently stored in the database.
-   *
-   * @param msgType the type of Messages to replay
+   * To replay CaseNotification messages that are currently stored in the database.
    */
-  void replay(String msgType);
+  void replayCaseNotification();
 
   /**
    * To remove from the database messages that have been successfully published on a RabbitMQ queue

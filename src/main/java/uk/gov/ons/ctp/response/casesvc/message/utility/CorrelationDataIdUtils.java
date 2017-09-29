@@ -10,7 +10,7 @@ public class CorrelationDataIdUtils {
   public static final String COMMA = ",";
   public static final String METHOD_CASE_DISTRIBUTOR_PROCESS_CASE = "processCase";
   public static final String METHOD_CASE_SERVICE_CREATE_CASE_EVENT = "createCaseEvent";
-  public static final String METHOD_SUPPORT_SERVICE_REPLAY = "replay";
+  public static final String METHOD_SUPPORT_SERVICE_REPLAY = "replayCaseNotification";
 
   public static String providerForCaseDistributor(UUID caseId, CaseState initialState) {
     StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_DISTRIBUTOR_PROCESS_CASE);

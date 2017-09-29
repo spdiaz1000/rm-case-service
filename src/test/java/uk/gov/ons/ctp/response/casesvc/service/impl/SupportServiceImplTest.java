@@ -26,7 +26,6 @@ import static uk.gov.ons.ctp.response.casesvc.message.utility.CorrelationDataIdU
 @RunWith(MockitoJUnitRunner.class)
 public class SupportServiceImplTest {
 
-  private static final String CASE_NOTIFICATION = "CaseNotification";
   private static final String DISABLED = "DISABLED";
   public static final String UNEXPECTED_METHOD_NAME = "someMethod";
 
@@ -49,7 +48,7 @@ public class SupportServiceImplTest {
     List<CaseNotification> emptyList = new ArrayList<>();
     when(caseNotificationRepository.findAll()).thenReturn(emptyList);
 
-    supportService.replay(CASE_NOTIFICATION);
+    supportService.replayCaseNotification();
 
     verify(caseNotificationPublisher, never()).sendNotification(any(uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification.class), any(String.class));
   }
@@ -61,7 +60,7 @@ public class SupportServiceImplTest {
     msgList.add(CaseNotification.builder().caseNotificationPK(2).caseId(CASE_ID_2).actionPlanId(ACTIONPLAN_ID_2).notificationType(DISABLED).build());
     when(caseNotificationRepository.findAll()).thenReturn(msgList);
 
-    supportService.replay(CASE_NOTIFICATION);
+    supportService.replayCaseNotification();
 
     ArgumentCaptor<uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification> caseNotificationArgument =
         ArgumentCaptor.forClass(uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification.class);
