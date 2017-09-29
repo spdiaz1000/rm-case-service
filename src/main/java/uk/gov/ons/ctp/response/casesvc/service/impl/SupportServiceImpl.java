@@ -35,10 +35,8 @@ public class SupportServiceImpl implements SupportService {
     }
   }
 
-  // TODO We assume below that it is a CaseNotification type. Enough for now as this is the only tye of messages
-  // TODO published by the CaseSvc. Make it generic in due course (msgType to be added to correlationDataId).
   @Override
-  public void removeFromDatabase(String correlationDataId) {
+  public void removeCaseNotificationFromDatabase(String correlationDataId) {
     String[] data = correlationDataId.split(COMMA);
     String methodName = data[0];
     log.info("methodName is {}", methodName);

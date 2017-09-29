@@ -33,7 +33,7 @@ public class CaseNotificationConfirmCallbackTest {
     caseNotificationConfirmCallback.confirm(correlationData, true, null);
 
     Mockito.verify(rollbackService, Mockito.never()).caseNotificationPublish(eq(correlationDataId), eq(false));
-    Mockito.verify(supportService, times(1)).removeFromDatabase(eq(correlationDataId));
+    Mockito.verify(supportService, times(1)).removeCaseNotificationFromDatabase(eq(correlationDataId));
   }
 
   @Test
@@ -44,6 +44,6 @@ public class CaseNotificationConfirmCallbackTest {
     caseNotificationConfirmCallback.confirm(correlationData, false, null);
 
     Mockito.verify(rollbackService, times(1)).caseNotificationPublish(eq(correlationDataId), eq(false));
-    Mockito.verify(supportService, Mockito.never()).removeFromDatabase(eq(correlationDataId));
+    Mockito.verify(supportService, Mockito.never()).removeCaseNotificationFromDatabase(eq(correlationDataId));
   }
 }

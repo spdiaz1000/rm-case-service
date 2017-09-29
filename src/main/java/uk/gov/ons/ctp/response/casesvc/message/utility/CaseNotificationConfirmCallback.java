@@ -34,7 +34,7 @@ public class CaseNotificationConfirmCallback implements RabbitTemplate.ConfirmCa
 
       rollbackService.caseNotificationPublish(correlationDataId, false);
     } else {
-      supportService.removeFromDatabase(correlationDataId);
+      supportService.removeCaseNotificationFromDatabase(correlationDataId);
     }
   }
 }

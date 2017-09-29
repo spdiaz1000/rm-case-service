@@ -93,7 +93,7 @@ public class SupportServiceImplTest {
     StringBuffer correlationDataId1 = new StringBuffer(UNEXPECTED_METHOD_NAME);
     correlationDataId1.append(COMMA);
     correlationDataId1.append("1");
-    supportService.removeFromDatabase(correlationDataId1.toString());
+    supportService.removeCaseNotificationFromDatabase(correlationDataId1.toString());
 
     verify(caseNotificationRepository, never()).findOne(any(Integer.class));
     verify(caseNotificationRepository, never()).delete(any(Integer.class));
@@ -104,7 +104,7 @@ public class SupportServiceImplTest {
     when(caseNotificationRepository.findOne(any(Integer.class))).thenReturn(null);
 
     String correlationDataId = CorrelationDataIdUtils.providerForSupportService(1);
-    supportService.removeFromDatabase(correlationDataId);
+    supportService.removeCaseNotificationFromDatabase(correlationDataId);
 
     verify(caseNotificationRepository, times(1)).findOne(any(Integer.class));
     verify(caseNotificationRepository, never()).delete(any(Integer.class));
@@ -120,7 +120,7 @@ public class SupportServiceImplTest {
     when(caseNotificationRepository.findOne(any(Integer.class))).thenReturn(caseNotification);
 
     String correlationDataId = CorrelationDataIdUtils.providerForSupportService(1);
-    supportService.removeFromDatabase(correlationDataId);
+    supportService.removeCaseNotificationFromDatabase(correlationDataId);
 
     verify(caseNotificationRepository, times(1)).findOne(any(Integer.class));
     verify(caseNotificationRepository, times(1)).delete(eq(1));

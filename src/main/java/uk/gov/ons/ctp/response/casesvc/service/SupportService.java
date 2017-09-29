@@ -11,9 +11,9 @@ public interface SupportService {
   void replayCaseNotification();
 
   /**
-   * To remove from the database messages that have been successfully published on a RabbitMQ queue
+   * To remove from the database CaseNotification messages that have been successfully published on a RabbitMQ queue
    *
    * @param correlationDataId the data required to identify successful messages
    */
-  void removeFromDatabase(String correlationDataId);
+  void removeCaseNotificationFromDatabase(String correlationDataId);
 }
