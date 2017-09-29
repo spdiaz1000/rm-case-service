@@ -5,7 +5,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ons.ctp.common.error.CTPException;
 import uk.gov.ons.ctp.common.time.DateTimeUtil;
 import uk.gov.ons.ctp.response.casesvc.domain.model.Case;
@@ -108,8 +108,6 @@ public class CaseReceiptReceiverImplTest {
    */
   @Test
   public void testProcessUnlinkedOnlineCaseReceipt() throws CTPException, DatatypeConfigurationException {
-    Mockito.when(caseService.findCaseById(UUID.fromString(LINKED_CASE_ID))).thenReturn(null);
-
     XMLGregorianCalendar calendar = DateTimeUtil.giveMeCalendarForNow();
     CaseReceipt caseReceipt = buildCaseReceipt(UNLINKED_CASE_ID, UNLINKED_CASE_REF, InboundChannel.ONLINE, calendar);
 
@@ -125,8 +123,6 @@ public class CaseReceiptReceiverImplTest {
    */
   @Test
   public void testProcessUnlinkedPaperCaseReceipt() throws CTPException, DatatypeConfigurationException {
-    Mockito.when(caseService.findCaseById(UUID.fromString(LINKED_CASE_ID))).thenReturn(null);
-
     XMLGregorianCalendar calendar = DateTimeUtil.giveMeCalendarForNow();
     CaseReceipt caseReceipt = buildCaseReceipt(UNLINKED_CASE_ID, UNLINKED_CASE_REF, InboundChannel.PAPER, calendar);
 
@@ -142,8 +138,6 @@ public class CaseReceiptReceiverImplTest {
    */
   @Test
   public void testProcessUnlinkedOfflineCaseReceipt() throws CTPException, DatatypeConfigurationException {
-    Mockito.when(caseService.findCaseById(UUID.fromString(LINKED_CASE_ID))).thenReturn(null);
-
     XMLGregorianCalendar calendar = DateTimeUtil.giveMeCalendarForNow();
     CaseReceipt caseReceipt = buildCaseReceipt(UNLINKED_CASE_ID, null, InboundChannel.PAPER, calendar);
 

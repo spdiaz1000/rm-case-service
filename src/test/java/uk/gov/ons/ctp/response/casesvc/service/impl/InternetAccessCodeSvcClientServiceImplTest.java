@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -80,7 +80,7 @@ public class InternetAccessCodeSvcClientServiceImplTest {
         .port(80)
         .path(IAC_POST_PATH)
         .build();
-    when(restUtility.createUriComponents(any(String.class), any(MultiValueMap.class))).thenReturn(uriComponents);
+    when(restUtility.createUriComponents(any(String.class), eq(null))).thenReturn(uriComponents);
 
     int count = 3;
     CreateInternetAccessCodeDTO createInternetAccessCodeDTO = new CreateInternetAccessCodeDTO(count, SYSTEM);

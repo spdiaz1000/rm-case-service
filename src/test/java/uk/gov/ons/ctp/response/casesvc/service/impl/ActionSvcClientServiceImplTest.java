@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.MultiValueMap;
@@ -74,8 +74,7 @@ public class ActionSvcClientServiceImplTest {
         .port(80)
         .path(ACTION_PATH)
         .build();
-    when(restUtility.createUriComponents(any(String.class), any(MultiValueMap.class))).
-        thenReturn(uriComponents);
+    when(restUtility.createUriComponents(any(String.class), eq(null))).thenReturn(uriComponents);
 
     ActionDTO actionDTO = new ActionDTO();
     actionDTO.setCaseId(EXISTING_CASE_ID);

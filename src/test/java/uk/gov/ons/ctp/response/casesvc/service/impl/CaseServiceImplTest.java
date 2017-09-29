@@ -6,13 +6,12 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.ons.ctp.common.FixtureHelper;
 import uk.gov.ons.ctp.common.error.CTPException;
 import uk.gov.ons.ctp.common.state.StateTransitionManager;
 import uk.gov.ons.ctp.common.time.DateTimeUtil;
 import uk.gov.ons.ctp.response.casesvc.config.AppConfig;
-import uk.gov.ons.ctp.response.casesvc.config.InternetAccessCodeSvc;
 import uk.gov.ons.ctp.response.casesvc.domain.model.Case;
 import uk.gov.ons.ctp.response.casesvc.domain.model.CaseEvent;
 import uk.gov.ons.ctp.response.casesvc.domain.model.CaseGroup;
@@ -186,7 +185,6 @@ public class CaseServiceImplTest {
     categories = FixtureHelper.loadClassFixtures(Category[].class);
     mockStateTransitions();
     mockupCaseGroupRepo();
-    mockAppConfigUse();
     mockupCaseEventRepo();
     mockupCollectionExerciseServiceClient();
   }
@@ -238,8 +236,6 @@ public class CaseServiceImplTest {
   @Test
   public void testCreateCaseEventAgainstNonExistentCase() throws CTPException {
     when(caseRepo.findOne(NON_EXISTING_PARENT_CASE_FK)).thenReturn(null);
-    when(categoryRepo.findOne(CategoryDTO.CategoryName.ADDRESS_DETAILS_INCORRECT))
-            .thenReturn(categories.get(CAT_ADDRESS_DETAILS_INCORRECT));
 
     Timestamp currentTime = DateTimeUtil.nowUTC();
     CaseEvent caseEvent = new CaseEvent(1, NON_EXISTING_PARENT_CASE_FK, CASEEVENT_DESCRIPTION, CASEEVENT_CREATEDBY,
@@ -1441,8 +1437,6 @@ public class CaseServiceImplTest {
     Case oldCase = argument.getValue();
     assertEquals(CaseState.INACTIONABLE, oldCase.getState());
 
-<<<<<<< HEAD
-=======
     StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_CREATE_CASE_EVENT);
     correlationDataId.append(COMMA);
     correlationDataId.append(CASE_ID_FOR_CASE_PK_11);
@@ -1450,7 +1444,6 @@ public class CaseServiceImplTest {
     correlationDataId.append(ACTION_PLAN_ID_FOR_CASE_PK_11);
     correlationDataId.append(COMMA);
     correlationDataId.append(NotificationType.DISABLED);
->>>>>>> CTPA-1511 CaseNotification now stored in DB if they can not  reach a queue - note the zzz commented out code: temporary measure to enable quick testing
     verify(notificationPublisher, times(1)).sendNotification(any(CaseNotification.class),
         eq(correlationDataId.toString()));
 
@@ -1520,15 +1513,5 @@ public class CaseServiceImplTest {
             .thenReturn(CaseState.INACTIONABLE);
     when(caseSvcStateTransitionManager.transition(CaseState.INACTIONABLE, CaseDTO.CaseEvent.DEACTIVATED))
             .thenReturn(CaseState.INACTIONABLE);
-  }
-
-  /**
-   * mock loading data
-   */
-  private void mockAppConfigUse() {
-    InternetAccessCodeSvc iacSvc = new InternetAccessCodeSvc();
-    iacSvc.setIacPutPath(IAC_SVC_PUT_PATH);
-    iacSvc.setIacPostPath(IAC_SVC_POST_PATH);
-    when(appConfig.getInternetAccessCodeSvc()).thenReturn(iacSvc);
   }
 }

@@ -5,7 +5,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.amqp.rabbit.support.CorrelationData;
 import uk.gov.ons.ctp.response.casesvc.service.RollbackService;
 import uk.gov.ons.ctp.response.casesvc.service.SupportService;
