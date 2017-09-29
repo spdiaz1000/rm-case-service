@@ -20,6 +20,7 @@ import uk.gov.ons.ctp.response.casesvc.domain.model.Case;
 import uk.gov.ons.ctp.response.casesvc.domain.repository.CaseRepository;
 import uk.gov.ons.ctp.response.casesvc.message.CaseNotificationPublisher;
 import uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification;
+import uk.gov.ons.ctp.response.casesvc.message.utility.CorrelationDataIdUtils;
 import uk.gov.ons.ctp.response.casesvc.representation.CaseDTO;
 import uk.gov.ons.ctp.response.casesvc.representation.CaseState;
 import uk.gov.ons.ctp.response.casesvc.service.CaseService;
@@ -212,12 +213,8 @@ public class CaseDistributor {
 
     CaseNotification caseNotification = caseService.prepareCaseNotification(caze, event);
     log.debug("Publishing caseNotification...");
-    StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_DISTRIBUTOR_PROCESS_CASE);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(updatedCase.getId());
-    correlationDataId.append(COMMA);
-    correlationDataId.append(initialState);
-    notificationPublisher.sendNotification(caseNotification, correlationDataId.toString());
+    notificationPublisher.sendNotification(caseNotification,
+        CorrelationDataIdUtils.providerForCaseDistributor(updatedCase.getId(), initialState));
   }
 
   /**

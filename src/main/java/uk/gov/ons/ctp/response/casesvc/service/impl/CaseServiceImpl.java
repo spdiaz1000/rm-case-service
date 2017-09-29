@@ -21,6 +21,7 @@ import uk.gov.ons.ctp.response.casesvc.message.notification.NotificationType;
 import uk.gov.ons.ctp.response.casesvc.message.sampleunitnotification.SampleUnitBase;
 import uk.gov.ons.ctp.response.casesvc.message.sampleunitnotification.SampleUnitChild;
 import uk.gov.ons.ctp.response.casesvc.message.sampleunitnotification.SampleUnitParent;
+import uk.gov.ons.ctp.response.casesvc.message.utility.CorrelationDataIdUtils;
 import uk.gov.ons.ctp.response.casesvc.representation.CaseDTO;
 import uk.gov.ons.ctp.response.casesvc.representation.CaseState;
 import uk.gov.ons.ctp.response.casesvc.representation.CategoryDTO;
@@ -420,14 +421,8 @@ public class CaseServiceImpl implements CaseService {
         String actionPlanId = caseNotification.getActionPlanId();
         NotificationType notificationType = caseNotification.getNotificationType();
 
-        StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_CREATE_CASE_EVENT);
-        correlationDataId.append(COMMA);
-        correlationDataId.append(caseId);
-        correlationDataId.append(COMMA);
-        correlationDataId.append(actionPlanId);
-        correlationDataId.append(COMMA);
-        correlationDataId.append(notificationType);
-        notificationPublisher.sendNotification(caseNotification, correlationDataId.toString());
+        notificationPublisher.sendNotification(caseNotification, CorrelationDataIdUtils.providerForCaseService(caseId,
+            actionPlanId, notificationType));
       }
     }
 
