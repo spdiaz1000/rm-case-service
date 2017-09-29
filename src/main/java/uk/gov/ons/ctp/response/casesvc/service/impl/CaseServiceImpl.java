@@ -49,7 +49,6 @@ import java.util.UUID;
 @Slf4j
 public class CaseServiceImpl implements CaseService {
 
-  public static final String COMMA = ",";
   public static final String IAC_OVERUSE_MSG = "More than one case found to be using IAC %s";
   public static final String METHOD_CASE_SERVICE_CREATE_CASE_EVENT = "createCaseEvent";
   public static final String MISSING_NEW_CASE_MSG = "New Case definition missing for case %s";

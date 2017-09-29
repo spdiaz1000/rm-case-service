@@ -7,17 +7,17 @@ import uk.gov.ons.ctp.response.casesvc.domain.model.CaseNotification;
 import uk.gov.ons.ctp.response.casesvc.domain.repository.CaseNotificationRepository;
 import uk.gov.ons.ctp.response.casesvc.message.CaseNotificationPublisher;
 import uk.gov.ons.ctp.response.casesvc.message.notification.NotificationType;
+import uk.gov.ons.ctp.response.casesvc.message.utility.CorrelationDataIdUtils;
 import uk.gov.ons.ctp.response.casesvc.service.SupportService;
 
 import java.util.List;
 
-import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.COMMA;
+import static uk.gov.ons.ctp.response.casesvc.message.utility.CorrelationDataIdUtils.COMMA;
+import static uk.gov.ons.ctp.response.casesvc.message.utility.CorrelationDataIdUtils.METHOD_SUPPORT_SERVICE_REPLAY;
 
 @Slf4j
 @Service
 public class SupportServiceImpl implements SupportService {
-
-  public static final String METHOD_SUPPORT_SERVICE_REPLAY = "replay";
 
   @Autowired
   private CaseNotificationRepository caseNotificationRepository;
@@ -33,12 +33,8 @@ public class SupportServiceImpl implements SupportService {
 
     StringBuffer correlationDataId;
     for (CaseNotification caseNotification : caseNotifications) {
-      correlationDataId = new StringBuffer(METHOD_SUPPORT_SERVICE_REPLAY);
-      correlationDataId.append(COMMA);
-      correlationDataId.append(caseNotification.getCaseNotificationPK());
-
       caseNotificationPublisher.sendNotification(prepareCaseNotification(caseNotification),
-          correlationDataId.toString());
+          CorrelationDataIdUtils.providerForSupportService(caseNotification.getCaseNotificationPK()));
     }
   }
 

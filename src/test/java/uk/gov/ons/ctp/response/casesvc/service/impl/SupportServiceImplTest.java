@@ -10,16 +10,18 @@ import uk.gov.ons.ctp.response.casesvc.domain.model.CaseNotification;
 import uk.gov.ons.ctp.response.casesvc.domain.repository.CaseNotificationRepository;
 import uk.gov.ons.ctp.response.casesvc.message.CaseNotificationPublisher;
 import uk.gov.ons.ctp.response.casesvc.message.notification.NotificationType;
+import uk.gov.ons.ctp.response.casesvc.message.utility.CorrelationDataIdUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
-import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.COMMA;
-import static uk.gov.ons.ctp.response.casesvc.service.impl.SupportServiceImpl.METHOD_SUPPORT_SERVICE_REPLAY;
+import static uk.gov.ons.ctp.response.casesvc.message.utility.CorrelationDataIdUtils.COMMA;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SupportServiceImplTest {
@@ -82,13 +84,9 @@ public class SupportServiceImplTest {
     List<String> correlationdataIdList = correlationDataIdArgument.getAllValues();
     assertEquals(2, correlationdataIdList.size());
 
-    StringBuffer correlationDataId1 = new StringBuffer(METHOD_SUPPORT_SERVICE_REPLAY);
-    correlationDataId1.append(COMMA);
-    correlationDataId1.append("1");
-    StringBuffer correlationDataId2 = new StringBuffer(METHOD_SUPPORT_SERVICE_REPLAY);
-    correlationDataId2.append(COMMA);
-    correlationDataId2.append("2");
-    assertThat(correlationdataIdList, containsInAnyOrder(correlationDataId1.toString(), correlationDataId2.toString()));
+    String correlationDataId1 = CorrelationDataIdUtils.providerForSupportService(1);
+    String correlationDataId2 = CorrelationDataIdUtils.providerForSupportService(2);
+    assertThat(correlationdataIdList, containsInAnyOrder(correlationDataId1, correlationDataId2));
   }
 
   @Test
@@ -106,10 +104,8 @@ public class SupportServiceImplTest {
   public void removeFromDatabaseExpectedMethodNameButNoCaseNotificationFound() {
     when(caseNotificationRepository.findOne(any(Integer.class))).thenReturn(null);
 
-    StringBuffer correlationDataId1 = new StringBuffer(METHOD_SUPPORT_SERVICE_REPLAY);
-    correlationDataId1.append(COMMA);
-    correlationDataId1.append("1");
-    supportService.removeFromDatabase(correlationDataId1.toString());
+    String correlationDataId = CorrelationDataIdUtils.providerForSupportService(1);
+    supportService.removeFromDatabase(correlationDataId);
 
     verify(caseNotificationRepository, times(1)).findOne(any(Integer.class));
     verify(caseNotificationRepository, never()).delete(any(Integer.class));
@@ -124,10 +120,8 @@ public class SupportServiceImplTest {
         .build();
     when(caseNotificationRepository.findOne(any(Integer.class))).thenReturn(caseNotification);
 
-    StringBuffer correlationDataId1 = new StringBuffer(METHOD_SUPPORT_SERVICE_REPLAY);
-    correlationDataId1.append(COMMA);
-    correlationDataId1.append("1");
-    supportService.removeFromDatabase(correlationDataId1.toString());
+    String correlationDataId = CorrelationDataIdUtils.providerForSupportService(1);
+    supportService.removeFromDatabase(correlationDataId);
 
     verify(caseNotificationRepository, times(1)).findOne(any(Integer.class));
     verify(caseNotificationRepository, times(1)).delete(eq(1));

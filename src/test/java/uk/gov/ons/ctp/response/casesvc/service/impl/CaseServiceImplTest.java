@@ -23,6 +23,7 @@ import uk.gov.ons.ctp.response.casesvc.domain.repository.CategoryRepository;
 import uk.gov.ons.ctp.response.casesvc.message.CaseNotificationPublisher;
 import uk.gov.ons.ctp.response.casesvc.message.notification.CaseNotification;
 import uk.gov.ons.ctp.response.casesvc.message.notification.NotificationType;
+import uk.gov.ons.ctp.response.casesvc.message.utility.CorrelationDataIdUtils;
 import uk.gov.ons.ctp.response.casesvc.representation.CaseDTO;
 import uk.gov.ons.ctp.response.casesvc.representation.CaseState;
 import uk.gov.ons.ctp.response.casesvc.representation.CategoryDTO;
@@ -1437,15 +1438,9 @@ public class CaseServiceImplTest {
     Case oldCase = argument.getValue();
     assertEquals(CaseState.INACTIONABLE, oldCase.getState());
 
-    StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_CREATE_CASE_EVENT);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(CASE_ID_FOR_CASE_PK_11);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(ACTION_PLAN_ID_FOR_CASE_PK_11);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(NotificationType.DISABLED);
+    String correlationDataId = CorrelationDataIdUtils.providerForCaseService(CASE_ID_FOR_CASE_PK_11, ACTION_PLAN_ID_FOR_CASE_PK_11, NotificationType.DISABLED);
     verify(notificationPublisher, times(1)).sendNotification(any(CaseNotification.class),
-        eq(correlationDataId.toString()));
+        eq(correlationDataId));
 
     // no new action to be created
     verify(actionSvcClientService, times(0)).createAndPostAction(any(String.class),

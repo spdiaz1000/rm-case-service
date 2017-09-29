@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.COMMA;
-
 /**
  * This is the 'service' class that distributes cases to the action service. It has a number of injected beans,
  * including a RestClient, Repositories and the InstructionPublisher.

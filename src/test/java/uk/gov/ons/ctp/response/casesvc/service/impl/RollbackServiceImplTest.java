@@ -11,6 +11,7 @@ import uk.gov.ons.ctp.response.casesvc.domain.model.CaseNotification;
 import uk.gov.ons.ctp.response.casesvc.domain.repository.CaseNotificationRepository;
 import uk.gov.ons.ctp.response.casesvc.domain.repository.CaseRepository;
 import uk.gov.ons.ctp.response.casesvc.message.notification.NotificationType;
+import uk.gov.ons.ctp.response.casesvc.message.utility.CorrelationDataIdUtils;
 import uk.gov.ons.ctp.response.casesvc.representation.CaseState;
 
 import java.util.UUID;
@@ -20,11 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
-import static uk.gov.ons.ctp.response.casesvc.scheduled.distribution.CaseDistributor.METHOD_CASE_DISTRIBUTOR_PROCESS_CASE;
-import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.COMMA;
-import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.METHOD_CASE_SERVICE_CREATE_CASE_EVENT;
 import static uk.gov.ons.ctp.response.casesvc.service.impl.RollbackServiceImpl.UNEXPECTED_SITUATION_ERRRO_MSG;
-import static uk.gov.ons.ctp.response.casesvc.service.impl.SupportServiceImpl.METHOD_SUPPORT_SERVICE_REPLAY;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RollbackServiceImplTest {
@@ -52,10 +49,8 @@ public class RollbackServiceImplTest {
 
   @Test
   public void testCaseNotificationPublishMethodSupportServiceReplayMsgNotReturned() {
-    StringBuffer correlationDataId = new StringBuffer(METHOD_SUPPORT_SERVICE_REPLAY);
-    correlationDataId.append(COMMA);
-    correlationDataId.append("1");
-    rollbackService.caseNotificationPublish(correlationDataId.toString(), false);
+    String correlationDataId = CorrelationDataIdUtils.providerForSupportService(1);
+    rollbackService.caseNotificationPublish(correlationDataId, false);
 
     verify(caseRepo, never()).findById(any(UUID.class));
     verify(caseRepo, never()).saveAndFlush(any(Case.class));
@@ -64,11 +59,9 @@ public class RollbackServiceImplTest {
 
   @Test
   public void testCaseNotificationPublishMethodSupportServiceReplayMsgReturned() {
-    StringBuffer correlationDataId = new StringBuffer(METHOD_SUPPORT_SERVICE_REPLAY);
-    correlationDataId.append(COMMA);
-    correlationDataId.append("1");
+    String correlationDataId = CorrelationDataIdUtils.providerForSupportService(1);
     try {
-      rollbackService.caseNotificationPublish(correlationDataId.toString(), true);
+      rollbackService.caseNotificationPublish(correlationDataId, true);
       fail();
     } catch (RuntimeException e) {
       assertEquals(UNEXPECTED_SITUATION_ERRRO_MSG, e.getMessage());
@@ -81,12 +74,9 @@ public class RollbackServiceImplTest {
 
   @Test
   public void testCaseNotificationPublishMethodCaseDistributorProcessCaseNoCaseFound() {
-    StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_DISTRIBUTOR_PROCESS_CASE);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(CASE_ID_1);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(CaseState.ACTIONABLE.name());
-    rollbackService.caseNotificationPublish(correlationDataId.toString(), false);
+    String correlationDataId = CorrelationDataIdUtils
+        .providerForCaseDistributor(UUID.fromString(CASE_ID_1), CaseState.ACTIONABLE);
+    rollbackService.caseNotificationPublish(correlationDataId, false);
 
     verify(caseRepo, times(1)).findById(eq(UUID.fromString(CASE_ID_1)));
     verify(caseRepo, never()).saveAndFlush(any(Case.class));
@@ -99,12 +89,9 @@ public class RollbackServiceImplTest {
     Case caze = Case.builder().state(CaseState.ACTIONABLE).iac("ABCD EFGH IJKL MNOP").build();
     when(caseRepo.findById(caseId)).thenReturn(caze);
 
-    StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_DISTRIBUTOR_PROCESS_CASE);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(CASE_ID_1);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(CaseState.ACTIONABLE.name());
-    rollbackService.caseNotificationPublish(correlationDataId.toString(), false);
+    String correlationDataId = CorrelationDataIdUtils
+        .providerForCaseDistributor(UUID.fromString(CASE_ID_1), CaseState.ACTIONABLE);
+    rollbackService.caseNotificationPublish(correlationDataId, false);
 
     verify(caseRepo, times(1)).findById(eq(caseId));
     caze.setIac(null);
@@ -115,14 +102,8 @@ public class RollbackServiceImplTest {
 
   @Test
   public void testCaseNotificationPublishMethodCaseServiceCreateEvent() {
-    StringBuffer correlationDataId = new StringBuffer(METHOD_CASE_SERVICE_CREATE_CASE_EVENT);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(CASE_ID_1);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(ACTION_PLAN_ID_1);
-    correlationDataId.append(COMMA);
-    correlationDataId.append(NotificationType.DISABLED);
-    rollbackService.caseNotificationPublish(correlationDataId.toString(), false);
+    String correlationDataId = CorrelationDataIdUtils.providerForCaseService(CASE_ID_1, ACTION_PLAN_ID_1, NotificationType.DISABLED);
+    rollbackService.caseNotificationPublish(correlationDataId, false);
 
     verify(caseRepo, never()).findById(any(UUID.class));
     verify(caseRepo, never()).saveAndFlush(any(Case.class));

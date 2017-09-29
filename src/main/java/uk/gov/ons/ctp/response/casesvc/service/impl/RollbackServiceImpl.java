@@ -13,10 +13,10 @@ import uk.gov.ons.ctp.response.casesvc.service.RollbackService;
 
 import java.util.UUID;
 
+import static uk.gov.ons.ctp.response.casesvc.message.utility.CorrelationDataIdUtils.COMMA;
+import static uk.gov.ons.ctp.response.casesvc.message.utility.CorrelationDataIdUtils.METHOD_SUPPORT_SERVICE_REPLAY;
 import static uk.gov.ons.ctp.response.casesvc.scheduled.distribution.CaseDistributor.METHOD_CASE_DISTRIBUTOR_PROCESS_CASE;
-import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.COMMA;
 import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.METHOD_CASE_SERVICE_CREATE_CASE_EVENT;
-import static uk.gov.ons.ctp.response.casesvc.service.impl.SupportServiceImpl.METHOD_SUPPORT_SERVICE_REPLAY;
 
 @Slf4j
 @Service
