@@ -58,7 +58,7 @@ public class SupportEndpointUnitTest {
 
   @Test
   public void replayMsgTypeNotFound() throws Exception {
-    ResultActions actions = mockMvc.perform(postJson(String.format("/support/replayCaseNotification/%s", NON_EXISTING_MSG_TYPE), ""));
+    ResultActions actions = mockMvc.perform(postJson(String.format("/support/replayMessages/%s", NON_EXISTING_MSG_TYPE), ""));
 
     actions.andExpect(status().isNotFound());
     actions.andExpect(handler().handlerType(SupportEndpoint.class));
@@ -72,7 +72,7 @@ public class SupportEndpointUnitTest {
 
   @Test
   public void replayMsgTypeFound() throws Exception {
-    ResultActions actions = mockMvc.perform(postJson(String.format("/support/replayCaseNotification/%s", CASE_NOTIFICATION), ""));
+    ResultActions actions = mockMvc.perform(postJson(String.format("/support/replayMessages/%s", CASE_NOTIFICATION), ""));
 
     actions.andExpect(status().is2xxSuccessful());
     actions.andExpect(handler().handlerType(SupportEndpoint.class));
@@ -85,7 +85,7 @@ public class SupportEndpointUnitTest {
   public void replayMsgTypeFoundButServiceBlowsUp() throws Exception {
     doThrow(new RuntimeException(RUNTIME_ERROR_MSG)).when(supportService).replayCaseNotification();
 
-    ResultActions actions = mockMvc.perform(postJson(String.format("/support/replayCaseNotification/%s", CASE_NOTIFICATION), ""));
+    ResultActions actions = mockMvc.perform(postJson(String.format("/support/replayMessages/%s", CASE_NOTIFICATION), ""));
 
     actions.andExpect(status().is5xxServerError());
     actions.andExpect(handler().handlerType(SupportEndpoint.class));

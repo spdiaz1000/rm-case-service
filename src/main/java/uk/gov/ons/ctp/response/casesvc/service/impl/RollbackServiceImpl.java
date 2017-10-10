@@ -33,7 +33,8 @@ public class RollbackServiceImpl implements RollbackService {
 
   @Override
   public void caseNotificationPublish(String correlationDataId, boolean msgReturned) {
-    log.info("entering caseNotificationPublish with correlationDataId {}", correlationDataId);
+    log.info("entering caseNotificationPublish with correlationDataId {} - msgReturned {}",
+        correlationDataId, msgReturned);
 
     // Pause below is required to prevent exception 'Row was updated or deleted by another transaction'
     try {
@@ -81,7 +82,7 @@ public class RollbackServiceImpl implements RollbackService {
               .notificationType(notificationType)
               .build();
           caseNotificationRepository.saveAndFlush(caseNotification);
-          log.info("case notification now stored in db - ready for replayCaseNotification");
+          log.info("case notification now stored in db - ready for replay");
         } else {
           log.error("Unexpected situation. caseId {} - actionPlanId {} - notificationType {}", caseId, actionPlanId,
               notificationType);
@@ -92,7 +93,8 @@ public class RollbackServiceImpl implements RollbackService {
         if (msgReturned) {
           /**
            * scenario where the queue has been deleted. This should never happen because, at this stage, there has
-           * already been a manual intervention to solve the RabbitMQ config and it is considered correct for a replayCaseNotification.
+           * already been a manual intervention to solve the RabbitMQ config and it is considered correct for a
+           * replay.
            *
            * We throw a RuntimeException here to ensure that CaseNotificationConfirmCallback.confirm is NOT played as
            * ack would be at true because the message reached the Exchange and we would remove the message from the DB.
@@ -101,7 +103,7 @@ public class RollbackServiceImpl implements RollbackService {
           log.error(UNEXPECTED_SITUATION_ERRRO_MSG);
           throw new RuntimeException(UNEXPECTED_SITUATION_ERRRO_MSG);
         } else {
-          // we do nothing because we are trying to replayCaseNotification a message which is already stored in DB.
+          // we do nothing because we are trying to replay a message which is already stored in DB.
         }
         break;
     }

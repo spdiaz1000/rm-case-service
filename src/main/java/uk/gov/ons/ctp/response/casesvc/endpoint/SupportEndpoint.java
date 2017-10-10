@@ -26,14 +26,14 @@ public class SupportEndpoint implements CTPEndpoint {
   private SupportService supportService;
 
   /**
-   * To replayCaseNotification messages that are stored in the database because they failed reaching a RabbitMQ queue when initially
+   * To replay messages that are stored in the database because they failed reaching a RabbitMQ queue when initially
    * published.
    *
-   * @param msgType the type of message to replayCaseNotification, ie CaseNotification or ?
-   * @return the case found
+   * @param msgType the type of message to replay, ie CaseNotification or ?
+   * @return the response 204 if all ok
    * @throws CTPException something went wrong
    */
-  @RequestMapping(value = "/replayCaseNotification/{msgType}", method = RequestMethod.POST)
+  @RequestMapping(value = "/replayMessages/{msgType}", method = RequestMethod.POST)
   public ResponseEntity<?> replayMessages(@PathVariable("msgType") final String msgType) throws CTPException {
     log.info("Entering replayMessages with msgType {}", msgType);
 
