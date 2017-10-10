@@ -16,7 +16,7 @@
         <property name="contentType" value="text/xml" />
     </bean>
 
-    <rabbit:template id="caseNotificationRabbitTemplate" connection-factory="connectionFactoryWithConfirmsEnabled" exchange="case-outbound-exchange" routing-key="Case.LifecycleEvents.binding"
+    <rabbit:template id="caseNotificationRabbitTemplate" connection-factory="connectionFactoryWithConfirmsEnabled" exchange="case-outbound-exchange"
                      message-converter="caseNotificationMarshallingMessageConverter" mandatory="true" confirm-callback="bespokeConfirmCallback" return-callback="bespokeReturnCallback"/>
 
     <bean id="bespokeConfirmCallback" class="uk.gov.ons.ctp.response.casesvc.message.utility.CaseNotificationConfirmCallback" />
