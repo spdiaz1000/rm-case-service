@@ -41,6 +41,8 @@ pipeline {
 
             }
 
+            when { branch 'master' }
+
             environment {
                 CLOUDFOUNDRY_API = credentials('CLOUDFOUNDRY_API')
                 CF_DOMAIN = credentials('CF_DOMAIN')
@@ -94,8 +96,9 @@ pipeline {
                 }
 
             }
+
             when {
-                environment name: 'deploy_ci', value: 'yes'
+                allOf { branch 'master'; environment name: 'deploy_ci', value: 'yes' }
             }
 
             environment {
@@ -154,7 +157,7 @@ pipeline {
                 GITHUB_API_KEY = credentials('GITHUB_API_KEY')
             }
             when {
-                environment name: 'do_release', value: 'yes'
+                allOf { branch 'master'; environment name: 'do_release', value: 'yes' }
             }
             steps {
                 sh 'git tag -d $(git tag -l)'
@@ -174,7 +177,7 @@ pipeline {
 
             }
             when {
-                environment name: 'do_release', value: 'yes'
+                allOf { branch 'master'; environment name: 'do_release', value: 'yes' }
             }
 
             environment {
