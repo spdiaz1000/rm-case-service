@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.ons.ctp.common.state.BasicStateTransitionManager;
 import uk.gov.ons.ctp.common.state.StateTransitionManager;
 import uk.gov.ons.ctp.common.state.StateTransitionManagerFactory;
+import uk.gov.ons.ctp.response.casesvc.domain.model.Category;
 import uk.gov.ons.ctp.response.casesvc.representation.CaseDTO.CaseEvent;
 import uk.gov.ons.ctp.response.casesvc.representation.CaseGroupStatus;
 import uk.gov.ons.ctp.response.casesvc.representation.CaseState;
@@ -65,6 +66,15 @@ public class CaseSvcStateTransitionManagerFactory implements StateTransitionMana
 
     // From reopened on completed by phone to completed by phone
     builder.put(CaseGroupStatus.REOPENED, CategoryDTO.CategoryName.COMPLETED_BY_PHONE, CaseGroupStatus.COMPLETEDBYPHONE);
+
+    // From completed on reopened to reopened
+    builder.put(CaseGroupStatus.COMPLETE, CategoryDTO.CategoryName.REOPENED, CaseGroupStatus.REOPENED);
+
+    // From completed by phone on reopened to reopened
+    builder.put(CaseGroupStatus.COMPLETEDBYPHONE, CategoryDTO.CategoryName.REOPENED, CaseGroupStatus.REOPENED);
+
+    // From completed by paper on reopened to reopened
+    builder.put(CaseGroupStatus.COMPLETEDBYPAPER, CategoryDTO.CategoryName.REOPENED, CaseGroupStatus.REOPENED);
 
     return new BasicStateTransitionManager<>(builder.build().rowMap());
   }
