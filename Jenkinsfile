@@ -73,10 +73,11 @@ pipeline {
 
         stage('ci?') {
             agent none
+            when { branch 'master' }
             steps {
                 script {
                     try {
-                        timeout(time: 60, unit: 'SECONDS') {
+                        timeout(time: 30, unit: 'SECONDS') {
                             script {
                                 env.deploy_ci = input message: 'Deploy to CI?', id: 'deploy_ci', parameters: [choice(name: 'Deploy to CI', choices: 'no\nyes', description: 'Choose "yes" if you want to deploy to CI')]
                             }
@@ -130,10 +131,11 @@ pipeline {
 
         stage('release?') {
             agent none
+            when { branch 'master' }
             steps {
                 script {
                     try {
-                        timeout(time: 60, unit: 'SECONDS') {
+                        timeout(time: 30, unit: 'SECONDS') {
                             script {
                                 env.do_release = input message: 'Do a release?', id: 'do_release', parameters: [choice(name: 'Release', choices: 'no\nyes', description: 'Choose "yes" if you want to create a release artifact and tag')]
                             }
