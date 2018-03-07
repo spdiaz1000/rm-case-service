@@ -29,3 +29,13 @@ databaseChangeLog:
             path: add_case_event_category.sql
             relativeToChangelogFile: true
             splitStatements: false
+
+  - changeSet:
+      id: 10.52.0-4
+      author: Liam Toozer
+      changes:
+        - sqlFile:
+            comment: Add category for case event when reopened
+            path: add_reopened_category.sql
+            relativeToChangelogFile: true
+            splitStatements: false
