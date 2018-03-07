@@ -191,4 +191,40 @@ public class StateTransitionManagerUnitTest {
     assertEquals(destinationState, CaseGroupStatus.COMPLETEDBYPHONE);
   }
 
+  @Test
+  public void givenCaseGroupStateCompletedWhenReopenedThenReopened() throws CTPException {
+    // Given
+    CaseGroupStatus complete = CaseGroupStatus.COMPLETE;
+
+    // When
+    CaseGroupStatus destinationState = caseGroupStateMachine.transition(complete, CategoryDTO.CategoryName.REOPENED);
+
+    // Then
+    assertEquals(destinationState, CaseGroupStatus.REOPENED);
+  }
+
+  @Test
+  public void givenCaseGroupStateCompletedByPhoneWhenReopenedThenReopened() throws CTPException {
+    // Given
+    CaseGroupStatus completedByPhone = CaseGroupStatus.COMPLETEDBYPHONE;
+
+    // When
+    CaseGroupStatus destinationState = caseGroupStateMachine.transition(completedByPhone, CategoryDTO.CategoryName.REOPENED);
+
+    // Then
+    assertEquals(destinationState, CaseGroupStatus.REOPENED);
+  }
+
+  @Test
+  public void givenCaseGroupStateCompletedByPaperWhenReopenedThenReopened() throws CTPException {
+    // Given
+    CaseGroupStatus completedByPaper = CaseGroupStatus.COMPLETEDBYPAPER;
+
+    // When
+    CaseGroupStatus destinationState = caseGroupStateMachine.transition(completedByPaper, CategoryDTO.CategoryName.REOPENED);
+
+    // Then
+    assertEquals(destinationState, CaseGroupStatus.REOPENED);
+  }
+
 }
