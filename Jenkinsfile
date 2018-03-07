@@ -41,7 +41,7 @@ pipeline {
 
             }
 
-            when { branch 'master' }
+            when { branch 'jenkins-pipeline' }
 
             environment {
                 CLOUDFOUNDRY_API = credentials('CLOUDFOUNDRY_API')
