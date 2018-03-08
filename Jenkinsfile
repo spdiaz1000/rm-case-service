@@ -32,63 +32,6 @@ pipeline {
             }
         }
 
-        stage('dev') {
-            agent {
-                docker {
-                    image 'governmentpaas/cf-cli'
-                    args '-u root'
-                }
-
-            }
-
-            when { branch 'master' }
-
-            environment {
-                CLOUDFOUNDRY_API = credentials('CLOUDFOUNDRY_API')
-                CF_DOMAIN = credentials('CF_DOMAIN')
-                DEV_SFTP = credentials('DEV_SFTP')
-                DEV_SECURITY = credentials('DEV_SECURITY')
-                DEV_SFTP_URL = credentials('DEV_SFTP_URL')
-                CF_USER = credentials('CF_USER')
-            }
-            steps {
-                sh "find . -type f -name '*casesvc*.jar' -not -name '*docker-info*' -exec mv {} target/casesvc.jar \\;"
-                sh "sed -i -- 's/SPACE/dev/g' *template.yml"
-                sh "sed -i -- 's/INSTANCES/1/g' *template.yml"
-                sh "sed -i -- 's/DATABASE/rm-pg-db/g' *template.yml"
-                sh "sed -i -- 's/DOMAIN/${env.CF_DOMAIN}/g' *template.yml"
-                sh "sed -i -- 's/REPLACE_PORT/80/g' *template.yml"
-                sh "sed -i -- 's/REPLACE_PROTOCOL/http/g' *template.yml"
-                sh "sed -i -- 's/ENDPOINT_ENABLED/'false'/g' *template.yml"
-                sh "sed -i -- 's/true/'true'/g' *template.yml"
-                sh "sed -i -- 's/REPLACE_BA_USERNAME/${env.DEV_SECURITY_USR}/g' *template.yml"
-                sh "sed -i -- 's/REPLACE_BA_PASSWORD/${env.DEV_SECURITY_PSW}/g' *template.yml"
-
-                sh "cf login -a https://${env.CLOUDFOUNDRY_API} --skip-ssl-validation -u ${CF_USER_USR} -p ${CF_USER_PSW} -o rmras -s dev"
-                sh 'cf push -f manifest-template.yml'
-                sh 'git reset --hard'
-            }
-        }
-
-
-        stage('ci?') {
-            agent none
-            when { branch 'master' }
-            steps {
-                script {
-                    try {
-                        timeout(time: 30, unit: 'SECONDS') {
-                            script {
-                                env.deploy_ci = input message: 'Deploy to CI?', id: 'deploy_ci', parameters: [choice(name: 'Deploy to CI', choices: 'no\nyes', description: 'Choose "yes" if you want to deploy to CI')]
-                            }
-                        }
-                    } catch (ignored) {
-                        echo 'Skipping ci deployment'
-                    }
-                }
-            }
-        }
-
         stage('ci') {
             agent {
                 docker {
