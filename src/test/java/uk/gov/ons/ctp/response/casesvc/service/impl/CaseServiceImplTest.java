@@ -29,22 +29,27 @@ import uk.gov.ons.ctp.response.casesvc.representation.CaseState;
 import uk.gov.ons.ctp.response.casesvc.representation.CategoryDTO;
 import uk.gov.ons.ctp.response.casesvc.service.*;
 import uk.gov.ons.ctp.response.collection.exercise.representation.CollectionExerciseDTO;
+import uk.gov.ons.ctp.response.sample.representation.SampleUnitDTO;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.Arrays;
 
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.never;
+
 import static uk.gov.ons.ctp.common.state.BasicStateTransitionManager.TRANSITION_ERROR_MSG;
 import static uk.gov.ons.ctp.response.casesvc.representation.CaseDTO.CaseEvent.ACCOUNT_CREATED;
 import static uk.gov.ons.ctp.response.casesvc.service.impl.CaseServiceImpl.IAC_OVERUSE_MSG;
@@ -103,6 +108,7 @@ public class CaseServiceImplTest {
   private static final Integer INITIAL_BUSINESS_UNIT_CASE_FK = 10;
   private static final Integer ACTIONABLE_BI_CASE_FK = 11;
   private static final Integer INACTIONABLE_BUSINESS_UNIT_CASE_FK = 12;
+  private static final Integer ANOTHER_ACTIONABLE_BI_CASE_FK = 13;
 
   private static final Integer CASEGROUP_PK = 1;
 
@@ -1090,6 +1096,19 @@ public class CaseServiceImplTest {
     CaseEvent caseEvent = fabricateEvent(CategoryDTO.CategoryName.RESPONDENT_ENROLED,
             ACTIONABLE_BUSINESS_UNIT_CASE_FK);
     Case newCase = caseRepo.findOne(ENROLMENT_CASE_INDIVIDUAL_FK);
+
+    // new mocks
+
+    List<CollectionExerciseDTO> listCollex = Collections.singletonList(makeCollectionExercise());
+    when(collectionExerciseSvcClientService.getCollectionExercises(null)).thenReturn(listCollex);
+    List<CaseGroup> theseCaseGroups = Collections.singletonList(makeCaseGroup());
+    when(caseGroupService.transitionOtherCaseGroups(any())).thenReturn(theseCaseGroups);
+    CaseGroup caseGroup = makeCaseGroup();
+    when(caseGroupRepo.findOne(ENROLMENT_CASE_INDIVIDUAL_FK)).thenReturn(caseGroup);
+    List<Case> c = Collections.singletonList(makeCase());
+    when(caseRepo.findByCaseGroupFKOrderByCreatedDateTimeDesc(any())).thenReturn(c);
+
+    // execute tests
     caseService.createCaseEvent(caseEvent, newCase);
 
     verify(caseRepo, times(1)).findOne(ACTIONABLE_BUSINESS_UNIT_CASE_FK);
@@ -1098,7 +1117,7 @@ public class CaseServiceImplTest {
     ArgumentCaptor<Case> argument = ArgumentCaptor.forClass(Case.class);
     verify(caseRepo, times(2)).saveAndFlush(argument.capture());
 
-    verify(internetAccessCodeSvcClientService, never()).disableIAC(any(String.class));
+    verify(internetAccessCodeSvcClientService, times(1)).disableIAC(any(String.class));
     verify(caseSvcStateTransitionManager, times(2)).transition(any(CaseState.class),
             any(CaseDTO.CaseEvent.class));    // action service should be told of the old case state change
     // Now verifying that the old case has been moved to INACTIONABLE and the new case is at REPLACEMENT_INIT
@@ -1122,6 +1141,44 @@ public class CaseServiceImplTest {
     // no new action to be created
     verify(actionSvcClientService, times(0)).createAndPostAction(any(String.class),
             any(UUID.class), any(String.class));
+  }
+
+  /**
+   * Make a test collection exercise
+   * @return a new test collection exercise
+   */
+  private CollectionExerciseDTO makeCollectionExercise() {
+    CollectionExerciseDTO collex = new CollectionExerciseDTO();
+    collex.setId(UUID.randomUUID());
+    collex.setState(CollectionExerciseDTO.CollectionExerciseState.READY_FOR_LIVE);
+    return collex;
+  }
+
+  /**
+   * Make a test case group
+   * @return a new test case group
+   */
+  private CaseGroup makeCaseGroup() {
+    CaseGroup cg = new CaseGroup();
+    cg.setId(UUID.randomUUID());
+    cg.setStatus(CaseGroupStatus.NOTSTARTED);
+    cg.setSampleUnitType("B");
+    return cg;
+  }
+
+  /**
+   * Make a test case
+   * @return a new test case
+   */
+  private Case makeCase() {
+    Case c = new Case();
+    c.setId(UUID.randomUUID());
+    c.setSampleUnitType(SampleUnitDTO.SampleUnitType.B);
+    c.setState(CaseState.ACTIONABLE);
+    c.setActionPlanId(UUID.randomUUID());
+    c.setCaseGroupId(UUID.randomUUID());
+    c.setCaseGroupFK(ENROLMENT_CASE_INDIVIDUAL_FK);
+    return c;
   }
 
   /**
@@ -1414,9 +1471,8 @@ public class CaseServiceImplTest {
   }
 
   /**
-   * We create a CaseEvent with category SUCCESSFUL_RESPONSE_UPLOAD on an ACTIONABLE BRES case
-   * (the one created for a respondent BI, accountant replying on behalf of Tesco for instance)
-   *
+   * A SUCCESSFUL_RESPONSE_UPLOAD event transitions an actionable BI case to INACTIONABLE, and all associated BI cases in the case group.
+   * The action service is notified of the transition of all BI Cases to stop them receiving communications.
    * @throws Exception if fabricateEvent does
    */
   @Test
@@ -1427,6 +1483,9 @@ public class CaseServiceImplTest {
     when(categoryRepo.findOne(CategoryDTO.CategoryName.SUCCESSFUL_RESPONSE_UPLOAD)).thenReturn(
             successfulResponseUploadedCategory);
 
+    when(caseRepo.findByCaseGroupId(null)).thenReturn(Arrays.asList(cases.get(ACTIONABLE_BI_CASE_FK),
+            cases.get(ANOTHER_ACTIONABLE_BI_CASE_FK)));
+
     CaseEvent caseEvent = fabricateEvent(CategoryDTO.CategoryName.SUCCESSFUL_RESPONSE_UPLOAD, ACTIONABLE_BI_CASE_FK);
     caseService.createCaseEvent(caseEvent, null);
 
@@ -1434,16 +1493,20 @@ public class CaseServiceImplTest {
     verify(categoryRepo).findOne(CategoryDTO.CategoryName.SUCCESSFUL_RESPONSE_UPLOAD);
     verify(caseEventRepository, times(1)).save(caseEvent);
     ArgumentCaptor<Case> argument = ArgumentCaptor.forClass(Case.class);
-    verify(caseRepo, times(1)).saveAndFlush(argument.capture());
+    verify(caseRepo, times(2)).saveAndFlush(argument.capture());
 
-    verify(internetAccessCodeSvcClientService, times(1)).disableIAC(any(String.class));
-    verify(caseSvcStateTransitionManager, times(2)).transition(any(CaseState.class),
-            any(CaseDTO.CaseEvent.class));    // action service should be told of the old case state change
-    // Now verifying that the old case has been moved to INACTIONABLE
-    Case oldCase = argument.getValue();
+    verify(internetAccessCodeSvcClientService, times(2)).disableIAC(any(String.class));
+    verify(caseSvcStateTransitionManager, times(3)).transition(any(CaseState.class),
+            any(CaseDTO.CaseEvent.class));    // action service should be told of the old case state change for both cases
+
+    // Now verifying that both cases has been moved to INACTIONABLE
+    Case oldCase = argument.getAllValues().get(0);
     assertEquals(CaseState.INACTIONABLE, oldCase.getState());
 
-    verify(notificationPublisher, times(1)).sendNotification(any(CaseNotification.class));
+    Case associatedOldCase = argument.getAllValues().get(1);
+    assertEquals(CaseState.INACTIONABLE, associatedOldCase.getState());
+
+    verify(notificationPublisher, times(2)).sendNotification(any(CaseNotification.class));
     // no new action to be created
     verify(actionSvcClientService, times(0)).createAndPostAction(any(String.class),
             any(UUID.class), any(String.class));
